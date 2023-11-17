@@ -1,0 +1,84 @@
+body {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+
+  color: #ffffff;
+}
+
+.card-useful {
+  position: relative;
+  display: flex;
+  background-color: #f7f5f0;
+
+  @media (hover: hover) {
+    :hover {
+      .card-portfolio__picture .lazy__item {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  &__picture {
+    overflow: hidden;
+    width: 100%;
+    max-width: 240px;
+
+    aspect-ratio: 1 / 1;
+
+    transition: 0.2s ease;
+
+    @media (hover: hover) {
+      :hover {
+        .card-portfolio__pisa .lazy__item {
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 24px 24px 40px;
+
+    border: 1px solid #bdaf94;
+    border-left: none;
+  }
+
+  &__title {
+    margin-bottom: 6px;
+  }
+
+  &__short {
+  }
+
+  &__action {
+    margin-top: 16px;
+
+    @media (hover: hover) {
+      :hover {
+        .caaard-portfolio__pisa .lazy__item {
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.test {
+  display: block;
+}

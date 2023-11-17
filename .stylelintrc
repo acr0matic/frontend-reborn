@@ -1,0 +1,420 @@
+{
+  "plugins": ["stylelint-order"],
+  "extends": [
+    "stylelint-config-standard-scss",
+  ],
+
+  "rules": {
+    "order/order": [
+			[
+				"dollar-variables",
+				"custom-properties",
+				"at-rules",
+				"declarations",
+				{
+					type: "at-rule",
+					name: "supports",
+				},
+				{
+					type: "at-rule",
+					name: "media",
+				},
+				"rules",
+			],
+			{ severity: "warning" },
+		],
+
+		"order/properties-order": [
+			[
+				"content",
+				"position",
+				"z-index",
+        "inset",
+				"top",
+				"right",
+				"bottom",
+				"left",
+				"display",
+				"vertical-align",
+				"flex",
+				"flex-grow",
+				"flex-shrink",
+				"flex-basis",
+				"flex-direction",
+				"flex-flow",
+				"flex-wrap",
+				"grid",
+				"grid-area",
+				"grid-template",
+				"grid-template-areas",
+				"grid-template-rows",
+				"grid-template-columns",
+				"grid-row",
+				"grid-row-start",
+				"grid-row-end",
+				"grid-column",
+				"grid-column-start",
+				"grid-column-end",
+				"grid-auto-rows",
+				"grid-auto-columns",
+				"grid-auto-flow",
+				"grid-gap",
+				"grid-row-gap",
+				"grid-column-gap",
+				"gap",
+				"row-gap",
+				"column-gap",
+				"align-content",
+				"align-items",
+				"align-self",
+				"justify-content",
+				"justify-items",
+				"justify-self",
+				"order",
+				"float",
+				"clear",
+				"object-fit",
+				"overflow",
+				"overflow-x",
+				"overflow-y",
+				"overflow-scrolling",
+				"clip",
+
+				"box-sizing",
+				"width",
+				"min-width",
+				"max-width",
+				"height",
+				"min-height",
+				"max-height",
+        "aspect-ratio",
+				"margin",
+				"margin-top",
+				"margin-right",
+				"margin-bottom",
+				"margin-left",
+				"padding",
+				"padding-top",
+				"padding-right",
+				"padding-bottom",
+				"padding-left",
+				"border",
+				"border-spacing",
+				"border-collapse",
+				"border-width",
+				"border-style",
+				"border-color",
+				"border-top",
+				"border-top-width",
+				"border-top-style",
+				"border-top-color",
+				"border-right",
+				"border-right-width",
+				"border-right-style",
+				"border-right-color",
+				"border-bottom",
+				"border-bottom-width",
+				"border-bottom-style",
+				"border-bottom-color",
+				"border-left",
+				"border-left-width",
+				"border-left-style",
+				"border-left-color",
+				"border-radius",
+				"border-top-left-radius",
+				"border-top-right-radius",
+				"border-bottom-right-radius",
+				"border-bottom-left-radius",
+				"border-image",
+				"border-image-source",
+				"border-image-slice",
+				"border-image-width",
+				"border-image-outset",
+				"border-image-repeat",
+				"border-top-image",
+				"border-right-image",
+				"border-bottom-image",
+				"border-left-image",
+				"border-corner-image",
+				"border-top-left-image",
+				"border-top-right-image",
+				"border-bottom-right-image",
+				"border-bottom-left-image",
+        "outline",
+				"outline-width",
+				"outline-style",
+				"outline-color",
+				"outline-offset",
+
+				"background",
+				"background-color",
+				"background-image",
+				"background-attachment",
+				"background-position",
+				"background-position-x",
+				"background-position-y",
+				"background-clip",
+				"background-origin",
+				"background-size",
+				"background-repeat",
+				"color",
+				"box-decoration-break",
+				"box-shadow",
+				"table-layout",
+				"caption-side",
+				"empty-cells",
+				"list-style",
+				"list-style-position",
+				"list-style-type",
+				"list-style-image",
+
+				"font",
+				"font-weight",
+				"font-style",
+				"font-variant",
+				"font-size-adjust",
+				"font-stretch",
+				"font-size",
+				"font-family",
+        "font-display",
+				"src",
+				"line-height",
+				"letter-spacing",
+				"quotes",
+				"counter-increment",
+				"counter-reset",
+				"-ms-writing-mode",
+				"text-align",
+				"text-align-last",
+				"text-decoration",
+				"text-emphasis",
+				"text-emphasis-position",
+				"text-emphasis-style",
+				"text-emphasis-color",
+				"text-indent",
+				"text-justify",
+				"text-outline",
+				"text-transform",
+				"text-wrap",
+				"text-overflow",
+				"text-overflow-ellipsis",
+				"text-overflow-mode",
+				"text-shadow",
+				"white-space",
+				"word-spacing",
+				"word-wrap",
+				"word-break",
+				"overflow-wrap",
+				"tab-size",
+				"hyphens",
+				"interpolation-mode",
+
+				"opacity",
+				"visibility",
+				"filter",
+				"resize",
+				"cursor",
+				"pointer-events",
+				"user-select",
+
+				"unicode-bidi",
+				"direction",
+				"columns",
+				"column-span",
+				"column-width",
+				"column-count",
+				"column-fill",
+				"column-rule",
+				"column-rule-width",
+				"column-rule-style",
+				"column-rule-color",
+				"break-before",
+				"break-inside",
+				"break-after",
+				"page-break-before",
+				"page-break-inside",
+				"page-break-after",
+				"orphans",
+				"widows",
+				"zoom",
+				"max-zoom",
+				"min-zoom",
+				"user-zoom",
+				"orientation",
+				"fill",
+				"stroke",
+
+				"transform",
+				"transform-origin",
+				"transition",
+				"transition-delay",
+				"transition-timing-function",
+				"transition-duration",
+				"transition-property",
+				"animation",
+				"animation-name",
+				"animation-duration",
+				"animation-play-state",
+				"animation-timing-function",
+				"animation-delay",
+				"animation-iteration-count",
+				"animation-direction",
+				"animation-fill-mode",
+			],
+			{
+				unspecified: "bottom",
+				severity: "warning",
+			},
+		],
+
+    "scss/dollar-variable-pattern": "^[a-zA-Z0-9_-]+$",
+    "scss/dollar-variable-empty-line-before": null,
+
+    "selector-class-pattern": "^[a-zA-Z0-9_-]+$",
+    "alpha-value-notation": "number",
+    "no-missing-end-of-source-newline": null,
+    "block-no-empty": null,
+    "no-descending-specificity" : null,
+    "declaration-colon-newline-after": null,
+    "at-rule-empty-line-before": null,
+    "value-no-vendor-prefix" : null,
+    "property-no-vendor-prefix": null,
+    "declaration-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested"],
+        "ignore": ["after-declaration"]
+      }
+    ],
+    "color-hex-length": "long",
+    "color-named": [
+      "never",
+      {
+        "message": "Цвета ключевыми словами нельзя писать"
+      }
+    ],
+    "color-no-invalid-hex": [
+      true,
+      {
+        "message": "Ошибка в написании HEX-цвета"
+      }
+    ],
+
+    "no-duplicate-at-import-rules": [
+      true,
+      {
+        "message": "Не должно быть повторного импорта файла"
+      }
+    ],
+    "no-duplicate-selectors": [
+      true,
+      {
+        "message": "Один и тот же селектор не должен дублироваться"
+      }
+    ],
+    "font-family-name-quotes": [
+      "always-where-recommended",
+      {
+        "message": "Название шрифта следует брать в кавычки"
+      }
+    ],
+    "font-family-no-duplicate-names": [
+      true,
+      {
+        "message": "Нельзя дублировать один и тот же шрифт"
+      }
+    ],
+    "font-family-no-missing-generic-family-keyword": [
+      true,
+      {
+        "message": "Необходимо указывать sans-serif или serif"
+      }
+    ],
+    "font-weight-notation": [
+      "numeric",
+      {
+        "message": "Необходимо указывать плотность шрифта цифрой",
+        "ignore": ["relative"]
+      }
+    ],
+    "declaration-block-no-duplicate-properties": [
+      true,
+      {
+        "message": "Правила не должны повторяться"
+      }
+    ],
+    "declaration-block-no-shorthand-property-overrides": [
+      true,
+      {
+        "message": "Это свойство перебивает другое"
+      }
+    ],
+    "declaration-block-single-line-max-declarations": [
+      1,
+      {
+        "message": "На одной строке должно быть одно правило"
+      }
+    ],
+    "property-no-unknown": [
+      true,
+      {
+        "message": "Такого свойства не существует"
+      }
+    ],
+    "unit-no-unknown": [
+      true,
+      {
+        "message": "Не существует таких единиц измерения"
+      }
+    ],
+    "value-keyword-case": [
+      "lower",
+      {
+        "message": "Значения свойств следует писать строчными буквами",
+        "ignoreProperties": ["/font-/"]
+      }
+    ],
+    "string-no-newline": [
+      true,
+      {
+        "message": "В строчных данных не должно быть переносов"
+      }
+    ],
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "message": "Такого псевдокласса не существует"
+      }
+    ],
+    "selector-pseudo-element-no-unknown": [
+      true,
+      {
+        "message": "Такого псевдоэлемента не существует"
+      }
+    ],
+    "selector-type-case": [
+      "lower",
+      {
+        "message": "Селекторы необходимо писать строчными буквами"
+      }
+    ],
+    "selector-type-no-unknown": [
+      true,
+      {
+        "message": "Такого селектора не существует"
+      }
+    ],
+    "length-zero-no-unit": [
+      true,
+      {
+        "message": "Единицы измерения не указываются, если значение равно нулю"
+      }
+    ],
+    "function-name-case": [
+      "lower",
+      {
+        "message": "Имена функций следует писать строчными буквами"
+      }
+    ],
+  }
+}

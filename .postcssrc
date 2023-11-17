@@ -1,0 +1,19 @@
+{
+  "syntax": "postcss-scss",
+  "map": false,
+  "plugins": {
+    "autoprefixer": {},
+    "postcss-sort-media-queries": {},
+    "cssnano": {
+      "preset": [
+        "advanced",
+        {
+          "reduceIdents": false,
+          "zindex": false,
+          "mergeIdents": false,
+          "autoprefixer": false
+        }
+      ]
+    }
+  }
+}

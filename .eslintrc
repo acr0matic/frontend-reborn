@@ -1,0 +1,12 @@
+{
+  "extends": "standard",
+  "ignorePatterns": [],
+  "rules": {
+    "no-new": "off",
+    "comma-dangle": "off",
+    "semi": [
+      "error",
+      "always"
+    ]
+  }
+}
