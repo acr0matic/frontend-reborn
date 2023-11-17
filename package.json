@@ -44,10 +44,6 @@
   },
   "scripts": {
     "dev": "yarn run webpack serve --open --mode development",
-    "build": "yarn run webpack --mode production",
-    "deploy": "node ./config/scripts/deploy.js"
-  },
-  "dependencies": {
-    "swiper": "^11.0.4"
+    "build": "yarn run webpack --mode production"
   }
 }
