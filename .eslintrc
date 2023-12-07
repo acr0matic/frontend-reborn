@@ -1,7 +1,7 @@
 {
   "extends": "standard",
   "ignorePatterns": [
-    "src/js/libs/*"
+    "src/js/libs/**/*.js"
   ],
   "rules": {
     "no-new": "off",

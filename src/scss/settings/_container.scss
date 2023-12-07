@@ -1,0 +1,15 @@
+$container-max-widths: (
+  mobile: 480px,
+  tablet: 768px,
+  notebook: 1160px,
+  laptop: 1360px,
+) !default;
+
+$container-wide-width: 1800px !default; // Размеры для отдельного, широкого контейнера
+$container-padding: 16px !default;
+
+
+
+.container {
+  @include make-container;
+}

@@ -1,0 +1,30 @@
+// -----------------------------------------------------------------------------
+// В этом файле подключаются все шрифты через font-face, и задаются основные настройки типографики
+// -----------------------------------------------------------------------------
+
+@include font-face("Roboto", "../assets/fonts/Roboto/Roboto-Light", 300);
+@include font-face("Roboto", "../assets/fonts/Roboto/Roboto-Regular", 400);
+@include font-face("Roboto", "../assets/fonts/Roboto/Roboto-Medium", 500);
+@include font-face("Roboto", "../assets/fonts/Roboto/Roboto-Bold", 700);
+
+$font-default: "Roboto", sans-serif; // Семейство по умолчанию
+
+/* Размеры заголовков */
+$font__title--large: 64px;
+$font__title--medium: 48px;
+$font__title--small: 36px;
+
+/* Размеры текста */
+$font__text--large: 24px;
+$font__text--big: 18px;
+$font__text--regular: 16px;
+$font__text--small: 14px;
+
+/* Межстрочные расстояния */
+$line-height--primary: 1.35;
+
+
+
+body {
+  font-family: $font-default;
+}

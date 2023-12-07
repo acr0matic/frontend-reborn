@@ -55,5 +55,8 @@
     "dev": "yarn run webpack serve --open --mode development",
     "build": "yarn run webpack --mode production",
     "deploy": "node ./node_scripts/deploy.js"
+  },
+  "dependencies": {
+    "vanilla-lazyload": "^17.8.5"
   }
 }

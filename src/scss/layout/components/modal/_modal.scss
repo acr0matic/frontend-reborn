@@ -1,0 +1,82 @@
+$transition-time: 0.2s;
+
+.modal {
+  &__overlay {
+    position: fixed;
+    z-index: $z-index-modal;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(#000000, 0.7);
+  }
+
+  &__container {
+    position: relative;
+  }
+
+  &__header {
+  }
+
+  &__title {
+  }
+
+  &__close {
+    position: absolute;
+    z-index: 3;
+    top: 10px;
+    right: 5px;
+
+    border: none;
+    outline: none;
+    background-color: transparent;
+
+    cursor: pointer;
+
+    transition: opacity 0.15s ease;
+
+    @media (hover: hover) {
+      &:hover {
+        opacity: 0.5;
+      }
+    }
+
+    &::before {
+      content: url("../img/icons/control/modal__close.svg");
+    }
+  }
+
+  &__content {
+  }
+}
+
+.micromodal-slide {
+  display: none;
+}
+
+.micromodal-slide.is-open {
+  display: block;
+}
+
+.micromodal-slide .modal__container,
+.micromodal-slide .modal__overlay {
+  will-change: transform;
+}
+
+.micromodal-slide[aria-hidden="false"] .modal__overlay {
+  animation: fade-in $transition-time cubic-bezier(0, 0, 0.2, 1);
+}
+
+.micromodal-slide[aria-hidden="false"] .modal__container {
+  animation: slide-in $transition-time cubic-bezier(0, 0, 0.2, 1);
+}
+
+.micromodal-slide[aria-hidden="true"] .modal__overlay {
+  animation: fade-out $transition-time cubic-bezier(0, 0, 0.2, 1);
+}
+
+.micromodal-slide[aria-hidden="true"] .modal__container {
+  animation: slide-out $transition-time cubic-bezier(0, 0, 0.2, 1);
+}
