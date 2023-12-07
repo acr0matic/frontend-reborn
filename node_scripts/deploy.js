@@ -1,22 +1,23 @@
-const FtpDeploy = require("ftp-deploy");
+const FtpDeploy = require('ftp-deploy');
 const ftpDeploy = new FtpDeploy();
+const path = require('path');
 
 const config = {
-  user: "user",
-  // Password optional, prompted if none given
-  password: "password",
-  host: "ftp.someserver.com",
+  host: 'ftp.someserver.com',
+  user: 'user',
+  password: 'password',
   port: 21,
-  localRoot: __dirname + "/local-folder",
-  remoteRoot: "/public_html/remote-folder/",
+
+  localRoot: path.resolve('dist', '/local-folder'),
+  remoteRoot: '/public_html/remote-folder/',
   // include: ["*", "**/*"],      // this would upload everything except dot files
-  include: ["*.php", "dist/*", ".*"],
+  include: ['*.php', 'dist/*', '.*'],
   // e.g. exclude sourcemaps, and ALL files in node_modules (including dot files)
   exclude: [
-    "dist/**/*.map",
-    "node_modules/**",
-    "node_modules/**/.*",
-    ".git/**",
+    'dist/**/*.map',
+    'node_modules/**',
+    'node_modules/**/.*',
+    '.git/**',
   ],
   // delete ALL existing files at destination before uploading, if true
   deleteRemote: false,
@@ -28,5 +29,5 @@ const config = {
 
 ftpDeploy
   .deploy(config)
-  .then((res) => console.log("finished:", res))
+  .then((res) => console.log('finished:', res))
   .catch((err) => console.log(err));

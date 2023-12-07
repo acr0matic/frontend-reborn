@@ -12,6 +12,7 @@
   "packageManager": "yarn@4.0.2",
   "devDependencies": {
     "autoprefixer": "^10.4.16",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "cssnano": "^6.0.1",
     "cssnano-preset-advanced": "^6.0.1",
@@ -21,15 +22,23 @@
     "eslint-plugin-n": "^16.3.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-webpack-plugin": "^4.0.1",
+    "favicons": "^7.1.4",
+    "favicons-webpack-plugin": "^6.0.1",
     "file-loader": "^6.2.0",
     "filemanager-webpack-plugin": "^8.0.0",
     "ftp-deploy": "^2.4.5",
     "glob": "^10.3.10",
+    "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.3",
     "mini-css-extract-plugin": "^2.7.6",
     "postcss": "^8.4.31",
     "postcss-loader": "^7.3.3",
     "postcss-sort-media-queries": "^5.2.0",
+    "posthtml": "^0.16.6",
+    "posthtml-include": "^1.7.4",
+    "posthtml-inline-svg": "^0.2.0",
+    "posthtml-loader": "^2.0.1",
+    "posthtml-modules": "^0.9.1",
     "purgecss-webpack-plugin": "^5.0.0",
     "sass": "^1.69.5",
     "sass-loader": "^13.3.2",
@@ -44,6 +53,7 @@
   },
   "scripts": {
     "dev": "yarn run webpack serve --open --mode development",
-    "build": "yarn run webpack --mode production"
+    "build": "yarn run webpack --mode production",
+    "deploy": "node ./node_scripts/deploy.js"
   }
 }

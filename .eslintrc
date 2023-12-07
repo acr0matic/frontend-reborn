@@ -1,12 +1,16 @@
 {
   "extends": "standard",
-  "ignorePatterns": [],
+  "ignorePatterns": [
+    "src/js/libs/*"
+  ],
   "rules": {
     "no-new": "off",
     "comma-dangle": "off",
     "semi": [
       "error",
       "always"
-    ]
+    ],
+    "space-before-function-paren": "off",
+    "brace-style": 0
   }
 }

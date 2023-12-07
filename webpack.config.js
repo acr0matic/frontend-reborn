@@ -1,31 +1,103 @@
 const path = require('path'); // Импортируем модуль "path" для работы с путями файлов
-const glob = require('glob')
+// const glob = require('glob');
 
+const posthtml = require('posthtml');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const StylelintPlugin = require('stylelint-webpack-plugin');
-const { PurgeCSSPlugin } = require('purgecss-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
+const postHtmlInclude = require('posthtml-include');
+const inlineSVG = require('posthtml-inline-svg');
+
+// const { PurgeCSSPlugin } = require('purgecss-webpack-plugin');
 
 module.exports = {
-  entry: './config/index.js', // Точка входа для сборки проекта
+  entry: './config/entry.js', // Точка входа для сборки проекта
   stats: 'errors-only',
   mode: 'development',
 
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader']
+        test: /\.html$/i,
+        use: [
+          {
+            loader: 'html-loader',
+            options: {
+              esModule: false,
+              minimize: false,
+              preprocessor: (content, loaderContext) => {
+                try {
+                  return posthtml([
+                    postHtmlInclude({
+                      root: path.resolve(__dirname, 'src'),
+                    }),
+                    inlineSVG({
+                      cwd: path.resolve(__dirname, 'src'),
+                      tag: 'inline',
+                      attr: 'src',
+                      svgo: {
+                        plugins: [
+                          { removeXMLNS: true },
+                          { removeViewBox: false },
+                          { removeDimensions: false },
+                        ],
+                      }
+                    })
+                  ])
+                    .process(content)
+                    .then((result) => result.html);
+                }
+
+                catch (error) {
+                  loaderContext.emitError(error);
+                  return content;
+                }
+              },
+            },
+          },
+        ]
+      },
+
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+
+      {
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
 
       {
         test: /\.s[ac]ss$/i,
         use: [
           MiniCssExtractPlugin.loader,
-          'css-loader',
+        ],
+      },
+
+      {
+        test: /\.s[ac]ss$/i,
+        loader: 'css-loader',
+        options: {
+          url: false,
+        },
+      },
+
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
           'sass-loader',
+        ],
+      },
+
+      {
+        test: /\.s[ac]ss$/i,
+        exclude: ['/src/scss/_old.scss'],
+        use: [
           'postcss-loader'
         ],
       },
@@ -33,8 +105,16 @@ module.exports = {
   },
 
   output: {
-    filename: 'bundle.js', // Имя выходного файла сборки
+    filename: 'js/bundle.js', // Имя выходного файла сборки
     path: path.resolve(__dirname, 'dist'), // Путь для выходного файла сборки
+    assetModuleFilename: (pathData) => {
+      const filepath = path
+        .dirname(pathData.filename)
+        .split('/')
+        .slice(1)
+        .join('/');
+      return `${filepath}/[name][ext]`;
+    },
   },
 
   plugins: [
@@ -42,18 +122,19 @@ module.exports = {
     new StylelintPlugin(),
 
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: path.join(__dirname, 'src', 'index.html'),
       inject: 'body',
+      minify: false,
     }),
 
-    new PurgeCSSPlugin({
-      paths: () => glob.sync(`${path.join(__dirname, 'src')}/**/*`, { nodir: true }),
-      safelist: {
-        deep: [],
-        standard: [],
-        greedy: []
-      }
-    }),
+    // new PurgeCSSPlugin({
+    //   paths: () => glob.sync(`${path.join(__dirname, 'src')}/**/*`, { nodir: true }),
+    //   safelist: {
+    //     deep: [],
+    //     standard: [],
+    //     greedy: []
+    //   }
+    // }),
 
     new FileManagerPlugin({
       events: {
@@ -66,13 +147,37 @@ module.exports = {
     }),
 
     new MiniCssExtractPlugin({
-      filename: "main.css",
+      filename: 'css/main.css',
+    }),
+
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: './src/assets', to: 'assets/' }
+      ]
+    }),
+
+    new FaviconsWebpackPlugin({
+      logo: './src/assets/favicons/favicon.png',
+      prefix: 'assets/favicons/',
+
+      favicons: {
+        icons: {
+          favicons: true,
+          android: false,
+          appleIcon: false,
+          appleStartup: false,
+          windows: false,
+          yandex: false,
+        },
+      }
     })
   ],
 
   devServer: {
-    watchFiles: path.join(__dirname, 'src'),
-    port: 9000,
+    open: true,
+    hot: true,
+    port: 'auto',
+    watchFiles: ['src/**/*.html'],
+    static: ['src/assets/'],
   },
 };
-
