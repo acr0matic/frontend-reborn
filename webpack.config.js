@@ -1,5 +1,5 @@
 const path = require('path'); // Импортируем модуль "path" для работы с путями файлов
-// const glob = require('glob');
+const fs = require('fs');
 
 const posthtml = require('posthtml');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -13,6 +13,8 @@ const postHtmlInclude = require('posthtml-include');
 const inlineSVG = require('posthtml-inline-svg');
 
 // const { PurgeCSSPlugin } = require('purgecss-webpack-plugin');
+
+const pages = fs.readdirSync(path.resolve(__dirname, 'src')).filter(fileName => fileName.endsWith('.html'));
 
 module.exports = {
   entry: './config/entry.js', // Точка входа для сборки проекта
@@ -121,11 +123,12 @@ module.exports = {
     new ESLintPlugin(),
     new StylelintPlugin(),
 
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'index.html'),
+    ...pages.map(page => new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', page),
+      filename: page,
       inject: 'body',
       minify: false,
-    }),
+    })),
 
     // new PurgeCSSPlugin({
     //   paths: () => glob.sync(`${path.join(__dirname, 'src')}/**/*`, { nodir: true }),
