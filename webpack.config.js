@@ -18,8 +18,12 @@ const pages = fs.readdirSync(path.resolve(__dirname, 'src')).filter(fileName => 
 
 module.exports = {
   entry: './config/entry.js', // Точка входа для сборки проекта
-  stats: 'errors-only',
   mode: 'development',
+  stats: {
+    preset: 'minimal',
+    assets: false,
+    modules: false,
+  },
 
   module: {
     rules: [
@@ -78,27 +82,19 @@ module.exports = {
         test: /\.s[ac]ss$/i,
         use: [
           MiniCssExtractPlugin.loader,
-        ],
-      },
-
-      {
-        test: /\.s[ac]ss$/i,
-        loader: 'css-loader',
-        options: {
-          url: false,
-        },
-      },
-
-      {
-        test: /\.s[ac]ss$/i,
-        use: [
+          {
+            loader: 'css-loader',
+            options: {
+              url: false,
+            },
+          },
           'sass-loader',
-        ],
+        ]
       },
 
       {
         test: /\.s[ac]ss$/i,
-        exclude: ['/src/scss/_old.scss'],
+        exclude: ['/src/scss/old/*'],
         use: [
           'postcss-loader'
         ],

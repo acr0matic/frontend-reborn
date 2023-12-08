@@ -267,6 +267,7 @@
 			},
 		],
 
+    "no-empty-source": null,
     "scss/dollar-variable-pattern": "^[a-zA-Z0-9_-]+$",
     "scss/dollar-variable-empty-line-before": null,
 

@@ -15,7 +15,7 @@
 
     opacity: 0;
     visibility: hidden;
-    transition: $transition ease;
+    transition: $transition-time ease;
   }
 
   &--preloader {
@@ -31,7 +31,7 @@
 
     pointer-events: none;
 
-    transition: $transition ease;
+    transition: $transition-time ease;
 
     &--blur {
       opacity: 1;

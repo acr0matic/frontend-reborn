@@ -1,7 +1,14 @@
 @import "components/main";
 
+@import "global/page";
 @import "global/header";
 @import "global/nav";
 @import "global/footer";
 @import "global/mobile";
 @import "global/section";
+
+@import "pages/main";
+
+@import "partials/main";
+
+@import "templates/main";
