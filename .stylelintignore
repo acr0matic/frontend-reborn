@@ -1,4 +1,4 @@
 /dist
 /src/scss/_old.scss
 /src/scss/base/_normalize.scss
-/src/scss/vendors/external/**/*.scss
+/src/scss/vendors/external/

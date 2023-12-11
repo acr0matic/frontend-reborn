@@ -5,7 +5,9 @@
   ],
   "rules": {
     "no-new": "off",
+    "quotes": "off",
     "comma-dangle": "off",
+    "eol-last": "off",
     "semi": [
       "error",
       "always"

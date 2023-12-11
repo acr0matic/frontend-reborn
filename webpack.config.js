@@ -69,7 +69,7 @@ module.exports = {
       },
 
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        test: /\.(png|svg|jpg|jpeg|gif|mp4)$/i,
         type: 'asset/resource',
       },
 
@@ -176,7 +176,7 @@ module.exports = {
     open: true,
     hot: true,
     port: 'auto',
-    watchFiles: ['src/**/*.html'],
+    watchFiles: path.resolve(__dirname, 'src', '**/*.html'),
     static: ['src/assets/'],
   },
 };
