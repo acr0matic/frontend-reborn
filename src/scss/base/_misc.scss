@@ -1,0 +1,13 @@
+.scroll-lock {
+  overflow: hidden;
+}
+
+.collapse:not(.collapse_show) {
+  display: none !important;
+}
+
+.scrollbar-hide {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}

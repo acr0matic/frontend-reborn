@@ -13,12 +13,14 @@
     background-size: 48px;
     background-repeat: no-repeat;
 
-    opacity: 0;
+    opacity: 1;
     visibility: hidden;
     transition: $transition-time ease;
   }
 
   &--preloader {
+    pointer-events: all;
+
     &::after {
       opacity: 1;
       visibility: visible;
@@ -47,7 +49,6 @@
   visibility: visible;
 
   filter: none;
-  pointer-events: initial;
 }
 
 /* purgecss end ignore */

@@ -268,8 +268,10 @@
 		],
 
     "no-empty-source": null,
+    "color-function-notation": "legacy",
     "scss/dollar-variable-pattern": "^[a-zA-Z0-9_-]+$",
     "scss/dollar-variable-empty-line-before": null,
+    "scss/double-slash-comment-empty-line-before" : null,
 
     "selector-class-pattern": "^[a-zA-Z0-9_-]+$",
     "alpha-value-notation": "number",

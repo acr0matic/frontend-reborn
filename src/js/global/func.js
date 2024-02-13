@@ -16,4 +16,5 @@ export const SetSize = (target, prefix, attach = false, dimension = 'height') =>
   return 0;
 };
 
+export const BlockHeight = (block) => block ? block.clientHeight : undefined;
 export const MediaQuery = (breakpoint) => window.matchMedia(`${breakpoint}`).matches;

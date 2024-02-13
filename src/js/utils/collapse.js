@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-expressions */
 /* https://itchief.ru/javascript/slidetoggle */
 
-const toggleEvent = new Event('dropdownToggle');
+const toggleEvent = new Event("dropdownToggle");
 
 export class Collapse {
   constructor(target, duration = 350) {
@@ -11,8 +12,9 @@ export class Collapse {
   }
 
   init() {
-    if (this._target.hasAttribute('data-show')) {
+    if (Object.hasOwn(this._target.dataset, 'show')) {
       this._target.classList.add('collapse_show');
+      this._target.parentNode.classList.add('is-open');
     }
 
     else {
@@ -31,7 +33,10 @@ export class Collapse {
     el.style.overflow = 'hidden';
     el.style.transition = `all ${this._duration}ms ease`;
     el.classList.add('collapsing');
+    el.offsetHeight;
     el.style.height = `${height}px`;
+    el.dispatchEvent(toggleEvent);
+
     window.setTimeout(() => {
       el.classList.remove('collapsing');
       el.classList.add('collapse');
@@ -39,7 +44,6 @@ export class Collapse {
       el.style.height = '';
       el.style.transition = '';
       el.style.overflow = '';
-      window.dispatchEvent(toggleEvent);
     }, this._duration);
   }
 
@@ -49,6 +53,7 @@ export class Collapse {
       return;
     }
     el.style.height = `${el.offsetHeight}px`;
+    el.offsetHeight;
     el.style.opacity = 0;
     el.style.height = 0;
     el.style.overflow = 'hidden';
@@ -63,7 +68,7 @@ export class Collapse {
       el.style.height = '';
       el.style.transition = '';
       el.style.overflow = '';
-      window.dispatchEvent(toggleEvent);
+      el.dispatchEvent(toggleEvent);
     }, this._duration);
   }
 

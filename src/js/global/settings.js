@@ -5,11 +5,16 @@ export const StyleСlass = {
   mobile: {
     open: 'mobile-menu--open',
   },
+
+  body: {
+    scroll: 'scroll-lock'
+  },
+
 };
 
 // Для адаптивности скриптов
 export const breakpoint = {
-  size: '(min-width: )',
+  mobile: '(min-width: 480px)',
 };
 
 // Базовые настройки для MicroModal.js
@@ -23,6 +28,6 @@ export const modalParams = {
   },
 
   onClose: () => {
-    window.currentModal = null;
+    window.currentModal = undefined;
   }
 };

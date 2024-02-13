@@ -1,16 +1,23 @@
 const path = require('path'); // Импортируем модуль "path" для работы с путями файлов
 const fs = require('fs');
 
-const posthtml = require('posthtml');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const FileManagerPlugin = require('filemanager-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const StylelintPlugin = require('stylelint-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
+const HtmlBeautifyPlugin = require('@nurminen/html-beautify-webpack-plugin');
 const postHtmlInclude = require('posthtml-include');
 const inlineSVG = require('posthtml-inline-svg');
+
+const FileManagerPlugin = require('filemanager-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
+const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const StylelintPlugin = require('stylelint-webpack-plugin');
+
+const ESLintPlugin = require('eslint-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 // const { PurgeCSSPlugin } = require('purgecss-webpack-plugin');
 
@@ -35,36 +42,32 @@ module.exports = {
             options: {
               esModule: false,
               minimize: false,
-              preprocessor: (content, loaderContext) => {
-                try {
-                  return posthtml([
-                    postHtmlInclude({
-                      root: path.resolve(__dirname, 'src'),
-                    }),
-                    inlineSVG({
-                      cwd: path.resolve(__dirname, 'src'),
-                      tag: 'inline',
-                      attr: 'src',
-                      svgo: {
-                        plugins: [
-                          { removeXMLNS: true },
-                          { removeViewBox: false },
-                          { removeDimensions: false },
-                        ],
-                      }
-                    })
-                  ])
-                    .process(content)
-                    .then((result) => result.html);
-                }
-
-                catch (error) {
-                  loaderContext.emitError(error);
-                  return content;
-                }
-              },
             },
           },
+          {
+            loader: 'posthtml-loader',
+            options: {
+              ident: 'posthtml',
+              plugins: [
+                postHtmlInclude({
+                  root: path.resolve(__dirname, 'src'),
+                }),
+
+                inlineSVG({
+                  cwd: path.resolve(__dirname, 'src'),
+                  tag: 'inline',
+                  attr: 'src',
+                  svgo: {
+                    plugins: [
+                      { removeXMLNS: true },
+                      { removeViewBox: false },
+                      { removeDimensions: false },
+                    ],
+                  }
+                })
+              ]
+            }
+          }
         ]
       },
 
@@ -85,10 +88,16 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
+              sourceMap: true,
               url: false,
             },
           },
-          'sass-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            }
+          }
         ]
       },
 
@@ -96,7 +105,12 @@ module.exports = {
         test: /\.s[ac]ss$/i,
         exclude: ['/src/scss/old/*'],
         use: [
-          'postcss-loader'
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+            }
+          }
         ],
       },
     ],
@@ -125,6 +139,18 @@ module.exports = {
       inject: 'body',
       minify: false,
     })),
+
+    new HtmlBeautifyPlugin({
+      config: {
+        html: {
+          end_with_newline: true,
+          indent_size: 2,
+          indent_with_tabs: true,
+          indent_inner_html: true,
+          preserve_newlines: true,
+        }
+      },
+    }),
 
     // new PurgeCSSPlugin({
     //   paths: () => glob.sync(`${path.join(__dirname, 'src')}/**/*`, { nodir: true }),
@@ -178,5 +204,30 @@ module.exports = {
     port: 'auto',
     watchFiles: path.resolve(__dirname, 'src', '**/*.html'),
     static: ['src/assets/'],
+  },
+
+  performance: {
+    hints: false,
+    maxEntrypointSize: 512_000,
+    maxAssetSize: 512_000
+  },
+
+  optimization: {
+    minimizer: [
+      new CssMinimizerPlugin(),
+      new TerserPlugin(),
+      new ImageMinimizerPlugin({
+        minimizer: {
+          implementation: ImageMinimizerPlugin.imageminMinify,
+          options: {
+            plugins: [
+              ["gifsicle", { interlaced: true }],
+              ["jpegtran", { progressive: true }],
+              ["optipng", { optimizationLevel: 5 }],
+            ],
+          },
+        },
+      }),
+    ],
   },
 };

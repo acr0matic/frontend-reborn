@@ -1,18 +1,35 @@
 {
-  "extends": "standard",
+  "env": {
+    "es2024": true,
+    "browser": true,
+    "commonjs": true,
+    "jquery": true
+  },
+  "extends": [
+    "standard",
+    "plugin:unicorn/recommended"
+  ],
+  "plugins": [
+    "unicorn"
+  ],
   "ignorePatterns": [
-    "src/js/libs/**/*.js"
+    "src/js/libs/**/*.js",
+    "webpack.config.js"
   ],
   "rules": {
+    "no-unused-vars": "off",
     "no-new": "off",
     "quotes": "off",
     "comma-dangle": "off",
     "eol-last": "off",
+    "no-multiple-empty-lines": "off",
     "semi": [
       "error",
       "always"
     ],
     "space-before-function-paren": "off",
-    "brace-style": 0
+    "brace-style": 0,
+    "unicorn/no-empty-file": "off",
+    "unicorn/prevent-abbreviations": "off"
   }
 }

@@ -1,0 +1,17 @@
+.logo {
+  display: inline-flex;
+  gap: 20px;
+  align-items: center;
+
+  transition: opacity $transition-time ease;
+
+  @media (hover: hover) {
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  &--header {
+
+  }
+}

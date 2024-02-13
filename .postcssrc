@@ -11,7 +11,8 @@
           "reduceIdents": false,
           "zindex": false,
           "mergeIdents": false,
-          "autoprefixer": false
+          "autoprefixer": false,
+          "normalizePositions": false
         }
       ]
     }

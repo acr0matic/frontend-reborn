@@ -1,8 +1,8 @@
 [data-editor] {
   font-size: $font__text--regular;
 
-  *:not(:last-child) {
-    margin-bottom: 20px;
+  & > *:not(:last-child) {
+    margin-bottom: 16px;
   }
 
   blockquote {
@@ -28,9 +28,12 @@
     font-weight: $weight-SemiBold;
   }
 
-  & > ul,
-  & > ol {
+  & > ul {
     list-style-type: disc;
+  }
+
+  & > ol {
+    list-style-type: decimal;
   }
 
   ul,

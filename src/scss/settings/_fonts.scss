@@ -23,8 +23,7 @@ $font__text--small: 14px;
 /* Межстрочные расстояния */
 $line-height--primary: 1.35;
 
-
-
 body {
-  font-family: $font-default;
+  font-size: $font__text--regular;
+  font-family: $font-default, sans-serif;
 }
