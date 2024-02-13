@@ -13,7 +13,8 @@
     "unicorn"
   ],
   "ignorePatterns": [
-    "src/js/libs/**/*.js",
+    "node_scripts/",
+    "src/js/libs/",
     "webpack.config.js"
   ],
   "rules": {

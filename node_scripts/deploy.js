@@ -1,33 +1,29 @@
-const FtpDeploy = require('ftp-deploy');
-const ftpDeploy = new FtpDeploy();
-const path = require('path');
+const ftp = require("basic-ftp")
 
-const config = {
-  host: 'ftp.someserver.com',
-  user: 'user',
-  password: 'password',
-  port: 21,
+async function deploy() {
+  const client = new ftp.Client();
 
-  localRoot: path.resolve('dist', '/local-folder'),
-  remoteRoot: '/public_html/remote-folder/',
-  // include: ["*", "**/*"],      // this would upload everything except dot files
-  include: ['*.php', 'dist/*', '.*'],
-  // e.g. exclude sourcemaps, and ALL files in node_modules (including dot files)
-  exclude: [
-    'dist/**/*.map',
-    'node_modules/**',
-    'node_modules/**/.*',
-    '.git/**',
-  ],
-  // delete ALL existing files at destination before uploading, if true
-  deleteRemote: false,
-  // Passive mode is forced (EPSV command is not sent)
-  forcePasv: true,
-  // use sftp or ftp
-  sftp: false,
-};
+  client.ftp.verbose = true;
 
-ftpDeploy
-  .deploy(config)
-  .then((res) => console.log('finished:', res))
-  .catch((err) => console.log(err));
+  try {
+    // Здесь прописываем данные от FTP
+    await client.access({
+      host: "",
+      user: "",
+      password: "",
+      secure: true
+    });
+
+    await client.ensureDir("dev/test") // Путь к папке на удаленном сервере
+    await client.clearWorkingDir()
+    await client.uploadFromDir("dist/")
+  }
+
+  catch (error) {
+    console.log(error);
+  }
+
+  client.close();
+}
+
+deploy();
