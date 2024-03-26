@@ -11,6 +11,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+const ImageminWebpWebpackPlugin = require("imagemin-webp-webpack-plugin");
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
@@ -67,12 +68,20 @@ module.exports = {
                 })
               ]
             }
-          }
+          },
+          // {
+          //   loader: 'string-replace-loader',
+          //   options: {
+          //     multiple: [
+          //       { search: '/<picture data-webp></picture>$/', replace: 'window.jQuery', }
+          //     ]
+          //   }
+          // }
         ]
       },
 
       {
-        test: /\.(png|svg|jpg|jpeg|gif|mp4)$/i,
+        test: /\.(png|svg|jpg|jpeg|gif|mp4|webp)$/i,
         type: 'asset/resource',
       },
 
@@ -228,6 +237,7 @@ module.exports = {
           },
         },
       }),
+      // new ImageminWebpWebpackPlugin()
     ],
   },
 };
