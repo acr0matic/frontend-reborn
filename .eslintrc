@@ -15,7 +15,9 @@
   "ignorePatterns": [
     "node_scripts/",
     "src/js/libs/",
-    "webpack.config.js"
+    "webpack.config.js",
+    "gulp_tasks/",
+    "gulpfile.js"
   ],
   "rules": {
     "no-unused-vars": "off",
