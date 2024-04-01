@@ -27,11 +27,11 @@ task('css', () => src(path.style.folder.build + path.style.name.build)
   .pipe(rename(path.style.name.theme))
   .pipe(dest(path.style.folder.theme)));
 
-task('clean', () => del(path.style.folder.build));
+task('clean_css', () => del(path.style.folder.build));
 
 task('styles',
   series(
     'css',
-    'clean',
+    'clean_css',
   ),
 );

@@ -73,7 +73,7 @@
   "scripts": {
     "dev": "yarn run webpack serve --progress --open --devtool source-map",
     "build": "yarn run webpack --progress --mode production",
-    "build_wp": "yarn run webpack --progress --mode production && gulp styles",
+    "build_wp": "yarn run webpack --progress --mode production && gulp styles && gulp scripts && gulp layout",
     "deploy": "node ./node_scripts/deploy.js",
     "create": "node ./node_scripts/create.js"
   },

@@ -2,6 +2,12 @@ const requireDir = require('require-dir');
 
 const path = {
   dist: './dist/',
+  layout: {
+    folder: {
+      build: './dist/',
+    },
+    name: '*.html',
+  },
   style: {
     folder: {
       build: './dist/css/',
@@ -12,6 +18,13 @@ const path = {
       theme: 'style.css',
     },
   },
+  scripts: {
+    folder: {
+      build: './dist/js/',
+      theme: './dist/assets/js/',
+    },
+    name: 'bundle.js',
+  }
 };
 
 module.exports = path;
