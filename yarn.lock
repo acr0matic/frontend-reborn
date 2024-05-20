@@ -5202,6 +5202,7 @@ __metadata:
     postcss-loader: "npm:^7.3.3"
     postcss-sort-media-queries: "npm:^5.2.0"
     posthtml: "npm:^0.16.6"
+    posthtml-expressions: "npm:^1.11.3"
     posthtml-include: "npm:^1.7.4"
     posthtml-inline-svg: "npm:^0.2.0"
     posthtml-loader: "npm:^2.0.1"
@@ -9846,7 +9847,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"posthtml-expressions@npm:^1.7.1":
+"posthtml-expressions@npm:^1.11.3, posthtml-expressions@npm:^1.7.1":
   version: 1.11.3
   resolution: "posthtml-expressions@npm:1.11.3"
   dependencies:

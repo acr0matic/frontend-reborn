@@ -6,4 +6,5 @@ import './layout/menu';
 
 import './layout/page/home';
 
+import './component/accordion';
 import './component/form';

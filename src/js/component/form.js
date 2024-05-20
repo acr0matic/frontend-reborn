@@ -19,7 +19,7 @@ export class Form {
     if (this.phone) {
       IMask(this.phone, {
         mask: this.mask.phone,
-        prepare: (appended, masked) => ((appended === '8' && masked.value === '') ? '' : appended),
+        prepare: (appended, masked) => ((appended === '8' && masked.value === '') ? '+7' : appended),
       });
     }
 
@@ -27,5 +27,5 @@ export class Form {
   }
 }
 
-const forms = document.querySelectorAll('form[data-form]');
+const forms = document.querySelectorAll('.form-custom');
 for (const form of forms) new Form(form);

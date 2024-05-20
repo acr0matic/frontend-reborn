@@ -12,7 +12,7 @@ export class Collapse {
   }
 
   init() {
-    if (Object.hasOwn(this._target.dataset, 'show')) {
+    if (this._target.dataset.state === 'open') {
       this._target.classList.add('collapse_show');
       this._target.parentNode.classList.add('is-open');
     }
@@ -20,6 +20,10 @@ export class Collapse {
     else {
       this._target.classList.add('collapse');
     }
+
+    this._target.addEventListener('dropdownToggle', () => {
+      this._target.parentNode.classList.toggle('is-open');
+    });
   }
 
   show() {

@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlBeautifyPlugin = require('@nurminen/html-beautify-webpack-plugin');
 const postHtmlInclude = require('posthtml-include');
 const inlineSVG = require('posthtml-inline-svg');
+const expressions = require('posthtml-expressions');
 
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -53,6 +54,8 @@ module.exports = {
                 postHtmlInclude({
                   root: path.resolve(__dirname, 'src'),
                 }),
+
+                expressions(),
 
                 inlineSVG({
                   cwd: path.resolve(__dirname, 'src'),
