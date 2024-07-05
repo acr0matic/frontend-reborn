@@ -143,7 +143,9 @@ module.exports = {
 
   plugins: [
     new ESLintPlugin(),
-    new StylelintPlugin(),
+    new StylelintPlugin({
+      allowEmptyInput: true,
+    }),
 
     ...pages.map(page => new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', page),
