@@ -13,7 +13,7 @@
     background-size: 48px;
     background-repeat: no-repeat;
 
-    opacity: 1;
+    opacity: 0;
     visibility: hidden;
     transition: $transition-time ease;
   }
@@ -27,13 +27,17 @@
     }
   }
 
+  &--preloader-alt::after {
+    background-image: url("../assets/images/misc/preloader-alt.svg");
+  }
+
   &__item {
     opacity: 0;
     visibility: hidden;
 
     pointer-events: none;
 
-    transition: $transition-time ease;
+    transition: $transition-time ease 0.2s;
 
     &--blur {
       opacity: 1;
@@ -49,6 +53,10 @@
   visibility: visible;
 
   filter: none;
+
+  &.lazy__item {
+    pointer-events: all;
+  }
 }
 
 /* purgecss end ignore */
