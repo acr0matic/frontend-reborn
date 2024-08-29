@@ -5,10 +5,12 @@
     }
   }
 
-  width: 100%;
+  & {
+    width: 100%;
 
-  margin: 0 auto;
-  padding: 0 $container-padding;
+    margin: 0 auto;
+    padding: 0 $container-padding;
+  }
 
   &--wide {
     @include breakpoint(map.get($grid-breakpoint, "laptop")) {
