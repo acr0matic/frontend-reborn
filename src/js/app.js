@@ -1,3 +1,9 @@
+/* Подключение стилей */
+import "normalize.css";
+
+
+
+/* Подключение скриптов */
 import './global/init';
 
 import './layout/common';

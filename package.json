@@ -80,6 +80,7 @@
   },
   "dependencies": {
     "imask": "^7.4.0",
+    "normalize.css": "^8.0.1",
     "vanilla-lazyload": "^17.8.5"
   }
 }

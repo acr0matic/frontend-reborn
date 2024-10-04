@@ -1,12 +1,22 @@
+/*
+-----------------------------------------------------------------------------
+Настройка брейкпоинтов для адаптива
+По умолчанию, медиа-запросы работают от уменьшения ширины экрана
+
+Например: перед нами экран, МАКСИМАЛЬНАЯ ширина экрана которого равна 1200px,
+тогда срабатывает брейкпоинт и применяются нужны стили
+-----------------------------------------------------------------------------
+*/
+
 $grid-breakpoint: (
   mobile: 540px,
   tablet: 800px,
   notebook: 1200px,
-  laptop: 1400px,
+  laptop: 1400px
 ) !default;
 
 // Переменные для обратной адаптивности
-$breakpoint-mobile: max-width map.get($grid-breakpoint, 'mobile');
-$breakpoint-tablet: max-width map.get($grid-breakpoint, 'tablet');
-$breakpoint-notebook: max-width map.get($grid-breakpoint, 'notebook');
-$breakpoint-laptop: max-width map.get($grid-breakpoint, 'laptop');
+$breakpoint-mobile: max-width map.get($grid-breakpoint, "mobile");
+$breakpoint-tablet: max-width map.get($grid-breakpoint, "tablet");
+$breakpoint-notebook: max-width map.get($grid-breakpoint, "notebook");
+$breakpoint-laptop: max-width map.get($grid-breakpoint, "laptop");

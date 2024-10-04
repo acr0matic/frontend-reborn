@@ -273,6 +273,7 @@
     "scss/dollar-variable-empty-line-before": null,
     "scss/double-slash-comment-empty-line-before" : null,
 
+    "comment-empty-line-before": null,
     "selector-class-pattern": "^[a-zA-Z0-9_-]+$",
     "alpha-value-notation": "number",
     "no-missing-end-of-source-newline": null,

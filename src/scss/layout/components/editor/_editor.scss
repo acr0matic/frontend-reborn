@@ -1,5 +1,5 @@
 [data-editor] {
-  font-size: $font__text--regular;
+  font-size: var(--font-text-regular);
 
   & > *:not(:last-child) {
     margin-bottom: 16px;
