@@ -18,4 +18,28 @@
 @import "vendors/override/main";
 @import "vendors/extend/main";
 
-@import "layout/main"
+/* ПОРЯДОК ПОДКЛЮЧЕНИЙ ВЫШЕ МЕНЯТЬ ТОЛЬКО ПРИ ОСОБОЙ НЕОБХОДИМОСТИ */
+
+@import "layout/components/main";
+
+/* Глобальные стили */
+@import "layout/global/page";
+@import "layout/global/header";
+@import "layout/global/nav";
+@import "layout/global/footer";
+@import "layout/global/mobile";
+@import "layout/global/page-header";
+@import "layout/global/section";
+
+/* Стили для узконаправленных тегов */
+@import "layout/misc/image";
+@import "layout/misc/link";
+@import "layout/misc/logo";
+
+/* Стили для повторяющихся блоков */
+@import "layout/b-example";
+@import "layout/c-example";
+@import "layout/s-example";
+
+/* Стили для шаблонов страниц, подключать новые фрагменты только в _main.scss */
+@import "layout/pages/main";

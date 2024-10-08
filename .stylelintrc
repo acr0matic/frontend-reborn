@@ -375,7 +375,8 @@
       "lower",
       {
         "message": "Значения свойств следует писать строчными буквами",
-        "ignoreProperties": ["/font-/"]
+        "ignoreProperties": ["/font-/"],
+        "camelCaseSvgKeywords": true,
       }
     ],
     "string-no-newline": [

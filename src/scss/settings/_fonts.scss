@@ -15,8 +15,15 @@ $font-default: "Roboto", sans-serif; // Семейство по умолчани
 body {
   color: $color-text__primary;
 
+  font-weight: $weight-Medium;
   font-size: var(--font-text-regular);
-  font-family: $font-default, sans-serif;
+  font-family: $font-default;
 
-  line-height: var(--line-height-primary);
+  line-height: var(--line-height-text);
+}
+
+h1,
+h2,
+h3, {
+  line-height: var(--line-height-title);
 }
