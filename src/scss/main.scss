@@ -10,9 +10,9 @@
 @import "common/base";
 @import "common/misc";
 
-@import "settings/vars";
 @import "settings/breakpoint";
 @import "settings/container";
+@import "settings/vars";
 @import "settings/fonts";
 
 @import "vendors/override/main";
@@ -39,7 +39,7 @@
 /* Стили для повторяющихся блоков */
 @import "layout/b-example";
 @import "layout/c-example";
-@import "layout/s-example";
+@import "layout/sb-example";
 
 /* Стили для шаблонов страниц, подключать новые фрагменты только в _main.scss */
 @import "layout/pages/main";
