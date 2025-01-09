@@ -19,12 +19,12 @@
 
 Клонируем репозиторий себе на компьютер:
 ```sh
-git clone https://github.com/acr0matic/boilerplate
+git clone https://github.com/acr0matic/frontend-reborn
 ```
 
 Переходим в каталог с проектом:
 ```sh
-cd boilerplate
+cd frontend-reborn
 ```
 
 Установливаем все зависимости командой:

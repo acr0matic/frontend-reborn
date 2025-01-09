@@ -38,9 +38,7 @@
 @import "layout/misc/social";
 
 /* Стили для повторяющихся блоков */
-@import "layout/b-example";
-@import "layout/c-example";
-@import "layout/sb-example";
+@import "layout/partials/main";
 
 /* Стили для шаблонов страниц, подключать новые фрагменты только в _main.scss */
 @import "layout/pages/main";

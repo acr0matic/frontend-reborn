@@ -1,5 +1,3 @@
-/* purgecss start ignore */
-
 .lazy {
   position: relative;
 
@@ -35,9 +33,7 @@
     opacity: 0;
     visibility: hidden;
 
-    pointer-events: none;
-
-    transition: $transition-time ease 0.2s;
+    transition: $transition-time ease 0.4s;
 
     &--blur {
       opacity: 1;
@@ -53,10 +49,4 @@
   visibility: visible;
 
   filter: none;
-
-  &.lazy__item {
-    pointer-events: all;
-  }
 }
-
-/* purgecss end ignore */
