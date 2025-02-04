@@ -1,7 +1,7 @@
 @mixin make-container {
   @each $breakpoint, $width in $container-max-widths {
-    @include breakpoint(map.get($grid-breakpoint, $breakpoint)) {
-      max-width: $width;
+    @include breakpoint(map.get($grid-breakpoint, $breakpoint) + 1px) {
+      max-width: $width + ($container-padding * 2);
     }
   }
 

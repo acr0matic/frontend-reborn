@@ -6,7 +6,7 @@ import HystModal from "../libs/hystmodal";
 /* Ленивая загрузка */
 
 export const lazyImageController = new LazyLoad({
-  elements_selector: '.lazy__item',
+  elements_selector: '.lazy__item:not([data-custom-lazy])',
 
   callback_loaded: (trigger) => {
     const container = trigger.closest('.lazy');
