@@ -1,5 +1,5 @@
 /* Подключение стилей */
-import "normalize.css";
+import "modern-normalize";
 
 
 

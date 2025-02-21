@@ -25,10 +25,6 @@
     }
   }
 
-  &--preloader-alt::after {
-    background-image: url("../assets/images/misc/preloader-alt.svg");
-  }
-
   &__item {
     opacity: 0;
     visibility: hidden;
