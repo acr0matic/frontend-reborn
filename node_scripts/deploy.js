@@ -14,7 +14,7 @@ async function deploy() {
       secure: true
     });
 
-    await client.ensureDir("dev/test") // Путь к папке на удаленном сервере
+    await client.ensureDir("dist/") // Путь к папке на удаленном сервере
     await client.clearWorkingDir()
     await client.uploadFromDir("dist/")
   }

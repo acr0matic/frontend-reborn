@@ -1,5 +1,6 @@
 [data-editor] {
   font-size: var(--font-text-regular);
+  line-height: var(--line-height-text);
 
   & > *:not(:last-child) {
     margin-bottom: 16px;
@@ -8,24 +9,32 @@
   blockquote {
     padding: 16px 24px;
     border-left: 3px solid #eeeeee;
+    font-style: italic;
   }
 
   video {
+    overflow: hidden;
     width: 100%;
     aspect-ratio: 16 / 9;
+    border-radius: var(--border-radius);
   }
 
   iframe {
     width: 100%;
+    border: none;
+    border-radius: var(--border-radius);
   }
 
   img {
-    display: initial;
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
   }
 
   b,
   strong {
-    font-weight: $weight-SemiBold;
+    font-weight: $weight-Bold;
   }
 
   & > ul {
@@ -41,13 +50,19 @@
     padding-left: 20px;
   }
 
+  li {
+    margin-bottom: 8px;
+  }
+
   a:not([class*="button"]) {
+    color: $link-color;
     text-decoration: underline;
-    transition: $transition-time ease;
+    transition: color $transition-time ease;
 
     @media (hover: hover) {
       &:hover {
         color: $link-hover-color;
+        text-decoration: none;
       }
     }
   }

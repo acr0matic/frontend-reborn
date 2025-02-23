@@ -14,9 +14,9 @@ export const lazyImageController = new LazyLoad({
   },
 });
 
-// Ленивая загрузка без прелоадеров
+// Ленивая загрузка без прелоадера и обёртки
 export const lazyBackgroundController = new LazyLoad({
-  elements_selector: '.lazy-bg',
+  elements_selector: '.lazy-simple',
 });
 
 /* --------- */
