@@ -1,0 +1,8 @@
+.media-wrapper {
+  position: relative;
+  align-self: start;
+
+  & > * {
+    overflow: hidden;
+  }
+}

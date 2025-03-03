@@ -1,5 +1,5 @@
 const path = require('path');
-const glob = require('glob');
+const fs = require('fs');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlBeautifyPlugin = require('@nurminen/html-beautify-webpack-plugin');
@@ -20,7 +20,7 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-const pages = glob.sync('./src/**/*.html');
+const pages = fs.readdirSync(path.resolve(__dirname, 'src')).filter(fileName => fileName.endsWith('.html'));
 
 module.exports = {
   entry: './config/entry.js',
@@ -100,8 +100,8 @@ module.exports = {
     new StylelintPlugin({ allowEmptyInput: true }),
 
     ...pages.map(page => new HtmlWebpackPlugin({
-      template: page,
-      filename: path.basename(page),
+      template: path.join(__dirname, 'src', page),
+      filename: page,
       inject: 'body',
       minify: false,
     })),

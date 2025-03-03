@@ -14,5 +14,6 @@ import './layout/page/home';
 
 import './component/accordion';
 import './component/form';
+import './component/submenu';
 
 import './utils/video-optimization';

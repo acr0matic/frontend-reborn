@@ -1,0 +1,47 @@
+.table {
+  overflow: auto;
+
+  &__content {
+    width: 100%;
+    border: 1px solid #d3d3d4;
+    table-layout: fixed;
+
+    th,
+    td {
+      text-align: center;
+
+      &:not(:last-child) {
+        border-right: 1px solid #d3d3d4;
+      }
+    }
+
+    thead {
+      th {
+        padding: 16px 8px;
+        border-bottom: 1px solid #d3d3d4;
+
+        background-color: #f2f2f2;
+
+        font-weight: $weight-Regular;
+      }
+    }
+
+    tbody {
+      tr:first-child {
+        td {
+          padding-top: 16px;
+        }
+      }
+
+      tr:last-child {
+        td {
+          padding-bottom: 16px;
+        }
+      }
+    }
+
+    td {
+      padding: 4px 8px;
+    }
+  }
+}

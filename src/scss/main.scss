@@ -25,6 +25,7 @@
 /* Глобальные стили */
 @import "layout/global/page";
 @import "layout/global/header";
+@import "layout/global/breadcrumbs";
 @import "layout/global/nav";
 @import "layout/global/footer";
 @import "layout/global/mobile";
@@ -36,6 +37,7 @@
 @import "layout/misc/link";
 @import "layout/misc/logo";
 @import "layout/misc/social";
+@import "layout/misc/media-wrapper";
 
 /* Стили для повторяющихся блоков */
 @import "layout/partials/main";

@@ -10,6 +10,10 @@ export const StyleСlass = {
     scroll: 'scroll-lock'
   },
 
+  state: {
+    open: 'is-open',
+    active: 'is-active',
+  }
 };
 
 // Для адаптивности скриптов
