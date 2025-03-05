@@ -77,11 +77,10 @@ module.exports = {
             options: { sourceMap: true, url: false },
           },
           {
-            loader: 'sass-loader',
-            options: { sourceMap: true },
+            loader: 'postcss-loader',
           },
           {
-            loader: 'postcss-loader',
+            loader: 'sass-loader',
             options: { sourceMap: true },
           },
         ],
