@@ -1,7 +1,7 @@
 /* Все объекты конфигураций для скриптов */
 
 // Повторяющиеся стили
-export const StyleСlass = {
+export const StyleClass = {
   mobile: {
     open: 'mobile-menu--open',
   },
