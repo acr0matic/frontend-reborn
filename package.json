@@ -9,7 +9,7 @@
   },
   "repository": "github:acr0matic/frontend-reborn",
   "bugs": "https://github.com/acr0matic/frontend-reborn/issues",
-  "packageManager": "yarn@4.0.2",
+  "packageManager": "yarn@4.8.1",
   "devDependencies": {
     "@nurminen/html-beautify-webpack-plugin": "^1.1.4",
     "@squoosh/lib": "^0.5.3",

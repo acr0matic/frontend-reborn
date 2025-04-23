@@ -11,8 +11,9 @@
 $container-max-widths: (
   mobile: 480px,
   tablet: 768px,
-  notebook: 1160px,
-  laptop: 1360px,
+  notebook: 991px,
+  laptop: 1200px,
+  desktop: 1440px,
 ) !default;
 
 $container-wide-width: 1800px !default;
