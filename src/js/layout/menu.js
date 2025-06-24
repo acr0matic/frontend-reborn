@@ -1,10 +1,11 @@
 import { header } from "./header";
 import { StyleClass } from "../global/settings";
 
-const menu = header.querySelector('.mobile-menu');
-const button = header.querySelector('.hamburger');
+const menu = header?.querySelector('.mobile-menu');
 
 if (menu) {
+  const button = header.querySelector('.hamburger');
+
   const toggleMenu = (isOpen) => {
     menu.classList.toggle(StyleClass.state.open, isOpen);
     button.classList.toggle(StyleClass.state.active, isOpen);
@@ -18,6 +19,7 @@ if (menu) {
       const isMenuOpen = menu.classList.contains(StyleClass.state.open);
       toggleMenu(!isMenuOpen);
     }
+
     else if (!target.closest('.mobile-menu__content')) {
       toggleMenu(false);
     }

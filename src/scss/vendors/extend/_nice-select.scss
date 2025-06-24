@@ -1,0 +1,33 @@
+.nice-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  float: none;
+  height: 100%;
+
+  font-size: var(--font-text-big);
+  line-height: var(--line-height-text);
+
+  &.open::after {
+    transform: rotate(180deg);
+  }
+
+  &::after {
+    position: static;
+
+    width: 24px;
+    height: 24px;
+
+    border: none;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='25' viewBox='0 0 24 25' fill='none'%3E%3Cpath d='M12.0007 13.6719L16.9507 8.72192L18.3647 10.1359L12.0007 16.4999L5.63672 10.1359L7.05072 8.72192L12.0007 13.6719Z' fill='%23202020'/%3E%3C/svg%3E");
+    background-size: contain;
+    transform: none;
+    transform-origin: initial;
+  }
+
+  .nice-select-dropdown {
+    width: 100%;
+  }
+}

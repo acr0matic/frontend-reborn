@@ -1,0 +1,50 @@
+.swiper {
+  &-wrapper {
+    box-sizing: border-box;
+  }
+
+  &-pagination {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+
+    &-bullet {
+      width: 8px;
+      height: 8px;
+
+      margin: 0 !important;
+
+      background-color: rgba($color: #ffffff, $alpha: 0.5);
+      opacity: 1;
+
+      transition: $transition-time ease;
+
+      &-active {
+        background-color: #ffffff;
+      }
+    }
+  }
+
+  &-button {
+    &-prev,
+    &-next {
+      &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+
+        opacity: 0;
+        transition: $transition-time ease;
+      }
+    }
+
+    &-prev {
+      left: 0;
+    }
+
+    &-next {
+      right: 0;
+    }
+  }
+}

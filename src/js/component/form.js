@@ -2,14 +2,11 @@ import IMask from 'imask';
 
 export class Form {
   constructor(form) {
-    form.addEventListener('click', this.onClick.bind(this));
-
     this.form = form;
-    this.fields = form.querySelectorAll('input');
+    this.fields = form.querySelectorAll('input, select, textarea');
     this.phone = form.querySelector('input[type=tel]');
     this.email = form.querySelector('input[type=email]');
     this.name = form.querySelector('input[name=user_name]');
-
     this.country = form.querySelector('select[data-target="country"]');
 
     this.maskController = undefined;
@@ -22,34 +19,42 @@ export class Form {
       },
     };
 
-    this.inputMask();
-    if (this.country) this.countrySelect();
+    this.initMask();
+    if (this.country) this.initCountrySelect();
+
+    this.form.addEventListener('click', this.onClick);
   }
 
-  onClick(event) {
-    const isButtonClicked = event.target.closest('.button');
+  onClick = (event) => {
+    const button = event.target.closest('.button');
+    if (!button) return;
 
-    if (isButtonClicked) {
-      const action = isButtonClicked.dataset.action;
-      if (action) this[action]();
+    const action = button.dataset.action;
+    if (action && typeof this[action] === 'function') {
+      this[action]();
     }
-  }
+  };
 
-  inputMask() {
+  initMask() {
     if (this.phone) {
       this.maskController = IMask(this.phone, {
         mask: this.mask.phone[7],
-        prepare: (appended, masked) => ((appended === '8' && masked.value === '') ? '+7' : appended),
+        prepare: (appended, masked) => (appended === '8' && masked.value === '' ? '+7' : appended),
       });
     }
 
-    if (this.name) IMask(this.name, { mask: this.mask.name });
+    if (this.name) {
+      IMask(this.name, { mask: this.mask.name });
+    }
   }
 
-  countrySelect() {
+  initCountrySelect() {
     this.country.addEventListener('change', () => {
+      if (!this.mask.phone[this.country.value]) {
+        console.warn(`Для кода страны не определена маска телефона: ${this.country.value}`);
+        return;
+      }
       this.phone.value = '';
-      this.maskController.updateValue();
       this.maskController.updateOptions({
         mask: this.mask.phone[this.country.value],
       });
@@ -58,11 +63,17 @@ export class Form {
 
   reset() {
     for (const field of this.fields) {
-      field.value = '';
-      field.checked = false;
+      if (field.type === 'checkbox' || field.type === 'radio') {
+        field.checked = false;
+      } else {
+        field.value = '';
+      }
+    }
+
+    if (this.maskController) {
+      this.maskController.updateValue();
     }
   }
 }
 
-const forms = document.querySelectorAll('.form-custom');
-for (const form of forms) new Form(form);
+for (const form of document.querySelectorAll('.form-custom')) new Form(form);
