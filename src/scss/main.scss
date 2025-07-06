@@ -6,14 +6,14 @@
 
 @import "vendors/include/main";
 
-@import "common/reset";
-@import "common/base";
-@import "common/misc";
-
 @import "settings/breakpoint";
 @import "settings/container";
 @import "settings/vars";
 @import "settings/fonts";
+
+@import "common/reset";
+@import "common/base";
+@import "common/misc";
 
 @import "vendors/override/main";
 @import "vendors/extend/main";
