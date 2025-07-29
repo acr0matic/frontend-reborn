@@ -1,5 +1,10 @@
-/* Подключение стилей */
+/* Подключение стилей библиотек */
 import "modern-normalize";
+
+
+
+/* Подключение стилей проекта */
+import '../scss/main.scss';
 
 
 
@@ -20,3 +25,6 @@ import './component/submenu';
 // import './component/tabs';
 
 import './utils/video-optimization';
+
+
+
