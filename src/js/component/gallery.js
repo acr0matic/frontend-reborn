@@ -36,7 +36,7 @@ for (const gallery of galleries) {
     },
 
     thumbs: {
-      swiper: preview,
+      swiper: preview.slides.length > 0 ? preview : undefined,
     },
 
     pagination: {

@@ -32,5 +32,6 @@ export const modalManager = new HystModal({
 });
 
 window.modalManager = modalManager;
+window.lazyload = lazyImageController;
 
 /* --------- */
