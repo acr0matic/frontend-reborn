@@ -3,10 +3,15 @@ import IMask from 'imask';
 export class Form {
   constructor(form) {
     this.form = form;
+    this.submit = form.querySelector('button[type=submit]');
+
     this.fields = form.querySelectorAll('input, select, textarea');
     this.phone = form.querySelector('input[type=tel]');
     this.email = form.querySelector('input[type=email]');
     this.name = form.querySelector('input[name=user_name]');
+
+    this.privacy = form.querySelectorAll('[data-privacy]');
+
     this.country = form.querySelector('select[data-target="country"]');
 
     this.maskController = undefined;
@@ -20,6 +25,8 @@ export class Form {
     };
 
     this.initMask();
+    this.initPrivacyListener();
+
     if (this.country) this.initCountrySelect();
 
     this.form.addEventListener('click', this.onClick);
@@ -46,6 +53,25 @@ export class Form {
     if (this.name) {
       IMask(this.name, { mask: this.mask.name });
     }
+  }
+
+  initPrivacyListener() {
+    if (!this.privacy || !this.submit) return;
+
+    const container = this.form;
+
+    this.updateSubmitState();
+
+    container.addEventListener('change', (e) => {
+      if (e.target.matches('input[type="checkbox"]')) {
+        this.updateSubmitState();
+      }
+    });
+  }
+
+  updateSubmitState() {
+    const allChecked = [...this.privacy].every(item => item.checked);
+    this.submit.disabled = !allChecked;
   }
 
   initCountrySelect() {
