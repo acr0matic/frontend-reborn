@@ -27,7 +27,7 @@ module.exports = (env, argv) => {
   return {
     entry: './src/js/app.js',
     mode: isProduction ? 'production' : 'development',
-    devtool: isProduction ? 'source-map' : 'eval-source-map',
+    devtool: isProduction ? 'hidden-source-map' : 'source-map',
 
     stats: 'minimal',
     cache: {
@@ -99,13 +99,20 @@ module.exports = (env, argv) => {
             },
             {
               loader: 'postcss-loader',
+              options: { sourceMap: true },  // важно!
             },
             {
               loader: 'sass-loader',
-              options: { sourceMap: true },
+              options: {
+                sourceMap: true,
+                api: 'modern',
+                sassOptions: {
+                  silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin']
+                }
+              },
             },
           ],
-        },
+        }
       ],
     },
 
@@ -170,6 +177,7 @@ module.exports = (env, argv) => {
         new CssMinimizerPlugin(),
         new TerserPlugin(),
         new ImageMinimizerPlugin({
+          loader: false,
           minimizer: {
             implementation: ImageMinimizerPlugin.sharpMinify,
             options: {

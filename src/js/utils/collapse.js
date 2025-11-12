@@ -13,12 +13,12 @@ export class Collapse {
 
   init() {
     if (this._target.dataset.state === 'open') {
-      this._target.classList.add('collapse_show');
+      this._target.classList.add('collapsed_show');
       this._target.parentNode.classList.add('is-open');
     }
 
     else {
-      this._target.classList.add('collapse');
+      this._target.classList.add('collapsed');
     }
 
     this._target.addEventListener('dropdownToggle', () => {
@@ -28,10 +28,10 @@ export class Collapse {
 
   show() {
     const el = this._target;
-    if (el.classList.contains('collapsing') || el.classList.contains('collapse_show')) {
+    if (el.classList.contains('collapsing') || el.classList.contains('collapsed_show')) {
       return;
     }
-    el.classList.remove('collapse');
+    el.classList.remove('collapsed');
     const height = el.offsetHeight;
     el.style.height = 0;
     el.style.overflow = 'hidden';
@@ -43,8 +43,8 @@ export class Collapse {
 
     window.setTimeout(() => {
       el.classList.remove('collapsing');
-      el.classList.add('collapse');
-      el.classList.add('collapse_show');
+      el.classList.add('collapsed');
+      el.classList.add('collapsed_show');
       el.style.height = '';
       el.style.transition = '';
       el.style.overflow = '';
@@ -53,7 +53,7 @@ export class Collapse {
 
   hide() {
     const el = this._target;
-    if (el.classList.contains('collapsing') || !el.classList.contains('collapse_show')) {
+    if (el.classList.contains('collapsing') || !el.classList.contains('collapsed_show')) {
       return;
     }
     el.style.height = `${el.offsetHeight}px`;
@@ -62,12 +62,12 @@ export class Collapse {
     el.style.height = 0;
     el.style.overflow = 'hidden';
     el.style.transition = `all ${this._duration}ms ease`;
-    el.classList.remove('collapse');
-    el.classList.remove('collapse_show');
+    el.classList.remove('collapsed');
+    el.classList.remove('collapsed_show');
     el.classList.add('collapsing');
     window.setTimeout(() => {
       el.classList.remove('collapsing');
-      el.classList.add('collapse');
+      el.classList.add('collapsed');
       el.style.opacity = '';
       el.style.height = '';
       el.style.transition = '';
@@ -77,6 +77,6 @@ export class Collapse {
   }
 
   toggle() {
-    this._target.classList.contains('collapse_show') ? this.hide() : this.show();
+    this._target.classList.contains('collapsed_show') ? this.hide() : this.show();
   }
 }
