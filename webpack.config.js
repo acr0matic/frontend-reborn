@@ -21,6 +21,8 @@ const pages = fs.readdirSync(path.resolve(__dirname, 'src')).filter(fileName => 
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
+  const useHashedFilenames = isProduction && env?.HASHED_ASSETS !== 'false';
+
   const assetsPath = (pathData) => {
     const filepath = path.posix
       .dirname(pathData.filename)
@@ -28,7 +30,9 @@ module.exports = (env, argv) => {
       .slice(1)
       .join('/');
 
-    return filepath ? `${filepath}/[name].[contenthash][ext][query]` : `[name].[contenthash][ext][query]`;
+    const name = useHashedFilenames ? '[name].[contenthash]' : '[name]';
+
+    return filepath ? `${filepath}/${name}[ext][query]` : `${name}[ext][query]`;
   };
 
   return {
@@ -42,8 +46,8 @@ module.exports = (env, argv) => {
     },
 
     output: {
-      filename: isProduction ? 'js/[name].[contenthash].js' : 'js/[name].js',
-      chunkFilename: isProduction ? 'js/[name].[contenthash].js' : 'js/[name].js',
+      filename: useHashedFilenames ? 'js/[name].[contenthash].js' : 'js/[name].js',
+      chunkFilename: useHashedFilenames ? 'js/[name].[contenthash].js' : 'js/[name].js',
       path: path.resolve(__dirname, 'dist'),
       clean: true,
       assetModuleFilename: assetsPath,
@@ -153,7 +157,7 @@ module.exports = (env, argv) => {
         },
       }),
 
-      new MiniCssExtractPlugin({ filename: isProduction ? 'css/[name].[contenthash].css' : 'css/[name].css' }),
+      new MiniCssExtractPlugin({ filename: useHashedFilenames ? 'css/[name].[contenthash].css' : 'css/[name].css' }),
 
       isProduction && new FaviconsWebpackPlugin({
         logo: './src/assets/favicons/favicon.png',
