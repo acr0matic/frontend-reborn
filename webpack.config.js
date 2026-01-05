@@ -7,8 +7,6 @@ const postHtmlInclude = require('posthtml-include');
 const inlineSVG = require('posthtml-inline-svg');
 const expressions = require('posthtml-expressions');
 
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
@@ -23,6 +21,15 @@ const pages = fs.readdirSync(path.resolve(__dirname, 'src')).filter(fileName => 
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
+  const assetsPath = (pathData) => {
+    const filepath = path.posix
+      .dirname(pathData.filename)
+      .split('/')
+      .slice(1)
+      .join('/');
+
+    return filepath ? `${filepath}/[name].[contenthash][ext][query]` : `[name].[contenthash][ext][query]`;
+  };
 
   return {
     entry: './src/js/app.js',
@@ -35,16 +42,19 @@ module.exports = (env, argv) => {
     },
 
     output: {
-      filename: 'js/bundle.js',
+      filename: isProduction ? 'js/[name].[contenthash].js' : 'js/[name].js',
+      chunkFilename: isProduction ? 'js/[name].[contenthash].js' : 'js/[name].js',
       path: path.resolve(__dirname, 'dist'),
       clean: true,
-      assetModuleFilename: (pathData) => {
-        const filepath = path
-          .dirname(pathData.filename)
-          .split('/')
-          .slice(1)
-          .join('/');
-        return `${filepath}/[name][ext]`;
+      assetModuleFilename: assetsPath,
+    },
+
+    resolve: {
+      alias: {
+        '@assets': path.resolve(__dirname, 'src/assets'),
+      },
+      extensionAlias: {
+        '.js': ['.js', '.cjs', '.mjs'],
       },
     },
 
@@ -81,7 +91,11 @@ module.exports = (env, argv) => {
           ],
         },
         {
-          test: /\.(png|svg|jpg|jpeg|gif|mp4|webp)$/i,
+          test: /\.(png|svg|jpe?g|gif|mp4|webp)$/i,
+          type: 'asset/resource',
+        },
+        {
+          test: /\.(woff2?|ttf|eot|otf)$/i,
           type: 'asset/resource',
         },
         {
@@ -95,7 +109,7 @@ module.exports = (env, argv) => {
             MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
-              options: { sourceMap: true, url: false },
+              options: { sourceMap: true },
             },
             {
               loader: 'postcss-loader',
@@ -139,10 +153,7 @@ module.exports = (env, argv) => {
         },
       }),
 
-      new MiniCssExtractPlugin({ filename: 'css/main.css' }),
-      new CopyWebpackPlugin({
-        patterns: [{ from: './src/assets', to: 'assets/' }],
-      }),
+      new MiniCssExtractPlugin({ filename: isProduction ? 'css/[name].[contenthash].css' : 'css/[name].css' }),
 
       isProduction && new FaviconsWebpackPlugin({
         logo: './src/assets/favicons/favicon.png',
@@ -164,7 +175,6 @@ module.exports = (env, argv) => {
       hot: true,
       port: 'auto',
       watchFiles: ['./src/**/*.html', './src/partials/**/*.html'], // Добавил отслеживание partials
-      static: ['src/assets/'],
     },
 
     performance: {
@@ -177,6 +187,7 @@ module.exports = (env, argv) => {
         new CssMinimizerPlugin(),
         new TerserPlugin(),
         new ImageMinimizerPlugin({
+          test: /\.(jpe?g|png|gif|svg|webp)$/i,
           loader: false,
           minimizer: {
             implementation: ImageMinimizerPlugin.sharpMinify,
