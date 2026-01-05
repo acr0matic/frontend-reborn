@@ -5,10 +5,10 @@
 -----------------------------------------------------------------------------
 */
 
-@include font-face("Roboto", "../assets/fonts/Roboto/Roboto-Light", 300);
-@include font-face("Roboto", "../assets/fonts/Roboto/Roboto-Regular", 400);
-@include font-face("Roboto", "../assets/fonts/Roboto/Roboto-Medium", 500);
-@include font-face("Roboto", "../assets/fonts/Roboto/Roboto-Bold", 700);
+@include font-face("Roboto", "~@assets/fonts/Roboto/Roboto-Light", 300);
+@include font-face("Roboto", "~@assets/fonts/Roboto/Roboto-Regular", 400);
+@include font-face("Roboto", "~@assets/fonts/Roboto/Roboto-Medium", 500);
+@include font-face("Roboto", "~@assets/fonts/Roboto/Roboto-Bold", 700);
 
 $font-default: "Roboto", sans-serif; // Семейство по умолчанию
 

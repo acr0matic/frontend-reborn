@@ -49,6 +49,12 @@ module.exports = (env, argv) => {
       },
     },
 
+    resolve: {
+      alias: {
+        '@assets': path.resolve(__dirname, 'src/assets'),
+      },
+    },
+
     module: {
       rules: [
         {
@@ -82,7 +88,11 @@ module.exports = (env, argv) => {
           ],
         },
         {
-          test: /\.(png|svg|jpg|jpeg|gif|mp4|webp)$/i,
+          test: /\.(png|svg|jpe?g|gif|mp4|webp)$/i,
+          type: 'asset/resource',
+        },
+        {
+          test: /\.(woff2?|ttf|eot|otf)$/i,
           type: 'asset/resource',
         },
         {
@@ -96,11 +106,11 @@ module.exports = (env, argv) => {
             MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
-              options: { sourceMap: true, url: false },
+              options: { sourceMap: true },
             },
             {
               loader: 'postcss-loader',
-              options: { sourceMap: true },  // важно!
+              options: { sourceMap: true },
             },
             {
               loader: 'sass-loader',
@@ -178,6 +188,7 @@ module.exports = (env, argv) => {
         new CssMinimizerPlugin(),
         new TerserPlugin(),
         new ImageMinimizerPlugin({
+          test: /\.(jpe?g|png|gif|svg|webp)$/i,
           loader: false,
           minimizer: {
             implementation: ImageMinimizerPlugin.sharpMinify,
