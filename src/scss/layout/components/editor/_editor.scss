@@ -6,6 +6,27 @@
     margin-bottom: 16px;
   }
 
+  & > * + h2,
+  & > * + h3,
+  & > * + h4 {
+    margin-top: 24px;
+  }
+
+  ul,
+  ol {
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 8px;
+  }
+
+  h2,
+  h3,
+  h4 {
+    font-weight: $weight-Bold;
+  }
+
   blockquote {
     padding: 16px 24px;
     border-left: 3px solid #eeeeee;
@@ -43,15 +64,6 @@
 
   & > ol {
     list-style-type: decimal;
-  }
-
-  ul,
-  ol {
-    padding-left: 20px;
-  }
-
-  li {
-    margin-bottom: 8px;
   }
 
   a:not([class*="button"]) {

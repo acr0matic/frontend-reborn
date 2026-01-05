@@ -8,9 +8,17 @@ export const pageHeight = Math.max(body.scrollHeight, body.offsetHeight, html.cl
 
 export let scrollDirection;
 
-window.addEventListener('scroll', function handleScroll() {
-  if (window.scrollY > this.lastScrollTop || 0) scrollDirection = 'bottom';
-  else if (window.scrollY < this.lastScrollTop) scrollDirection = 'top';
+let lastScrollTop = 0;
+window.addEventListener('scroll', () => {
+  requestAnimationFrame(() => {
+    const currentScroll = window.scrollY;
 
-  this.lastScrollTop = window.scrollY;
-});
+    if (currentScroll > lastScrollTop && currentScroll > 0) {
+      scrollDirection = 'down';
+    } else if (currentScroll < lastScrollTop) {
+      scrollDirection = 'up';
+    }
+
+    lastScrollTop = Math.max(0, currentScroll);
+  });
+}, { passive: true });

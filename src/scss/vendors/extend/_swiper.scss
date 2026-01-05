@@ -1,4 +1,8 @@
 .swiper {
+  &-fade > .swiper-wrapper > .swiper-slide-active {
+    z-index: 5;
+  }
+
   &-wrapper {
     box-sizing: border-box;
   }
