@@ -19,7 +19,8 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-const pages = fs.readdirSync(path.resolve(__dirname, 'src')).filter(fileName => fileName.endsWith('.html'));
+const includeRoot = path.resolve(__dirname, 'src');
+const pages = fs.readdirSync(includeRoot).filter(fileName => fileName.endsWith('.html'));
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -61,10 +62,10 @@ module.exports = (env, argv) => {
               loader: 'posthtml-loader',
               options: {
                 plugins: [
-                  postHtmlInclude({ root: path.resolve(__dirname, 'src') }),
+                  postHtmlInclude({ root: includeRoot }),
                   expressions(),
                   inlineSVG({
-                    cwd: path.resolve(__dirname, 'src'),
+                    cwd: includeRoot,
                     tag: 'inline',
                     attr: 'src',
                     svgo: {
@@ -163,7 +164,7 @@ module.exports = (env, argv) => {
     devServer: {
       hot: true,
       port: 'auto',
-      watchFiles: ['./src/**/*.html', './src/partials/**/*.html'], // Добавил отслеживание partials
+      watchFiles: ['src/layout/**/*.html', 'src/**/*.html'],
       static: ['src/assets/'],
     },
 
