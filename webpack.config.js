@@ -7,8 +7,6 @@ const postHtmlInclude = require('posthtml-include');
 const inlineSVG = require('posthtml-inline-svg');
 const expressions = require('posthtml-expressions');
 
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
@@ -28,7 +26,7 @@ module.exports = (env, argv) => {
   return {
     entry: './src/js/app.js',
     mode: isProduction ? 'production' : 'development',
-    devtool: isProduction ? 'hidden-source-map' : 'source-map',
+    devtool: isProduction ? 'source-map' : 'eval-cheap-module-source-map',
 
     stats: 'minimal',
     cache: {
@@ -40,12 +38,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'dist'),
       clean: true,
       assetModuleFilename: (pathData) => {
-        const filepath = path
-          .dirname(pathData.filename)
-          .split('/')
-          .slice(1)
-          .join('/');
-        return `${filepath}/[name][ext]`;
+        return `assets/[path][name][ext]`;
       },
     },
 
@@ -62,7 +55,10 @@ module.exports = (env, argv) => {
           use: [
             {
               loader: 'html-loader',
-              options: { esModule: false, minimize: false },
+              options: {
+                esModule: false,
+                minimize: false
+              },
             },
             {
               loader: 'posthtml-loader',
@@ -97,25 +93,29 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.css$/i,
-          use: [MiniCssExtractPlugin.loader, 'css-loader'],
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+            'css-loader'
+          ],
         },
+
         {
           test: /\.s[ac]ss$/i,
           exclude: ['/src/scss/old/*'],
           use: [
-            MiniCssExtractPlugin.loader,
+            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
             {
               loader: 'css-loader',
-              options: { sourceMap: true },
+              options: { sourceMap: !isProduction },
             },
             {
               loader: 'postcss-loader',
-              options: { sourceMap: true },
+              options: { sourceMap: !isProduction },
             },
             {
               loader: 'sass-loader',
               options: {
-                sourceMap: true,
+                sourceMap: !isProduction,
                 api: 'modern',
                 sassOptions: {
                   silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin']
@@ -150,9 +150,8 @@ module.exports = (env, argv) => {
         },
       }),
 
-      new MiniCssExtractPlugin({ filename: 'css/main.css' }),
-      new CopyWebpackPlugin({
-        patterns: [{ from: './src/assets', to: 'assets/' }],
+      isProduction && new MiniCssExtractPlugin({
+        filename: 'css/main.css'
       }),
 
       isProduction && new FaviconsWebpackPlugin({
@@ -175,19 +174,22 @@ module.exports = (env, argv) => {
       hot: true,
       port: 'auto',
       watchFiles: ['src/layout/**/*.html', 'src/**/*.html'],
-      static: ['src/assets/'],
+      static: path.resolve(__dirname, 'dist')
     },
 
     performance: {
-      hints: false,
+      hints: isProduction ? 'warning' : false
     },
 
     optimization: {
       minimize: isProduction,
       minimizer: [
         new CssMinimizerPlugin(),
-        new TerserPlugin(),
-        new ImageMinimizerPlugin({
+        new TerserPlugin({
+          parallel: true,
+          extractComments: false
+        }),
+        isProduction && new ImageMinimizerPlugin({
           test: /\.(jpe?g|png|gif|svg|webp)$/i,
           loader: false,
           minimizer: {
@@ -203,5 +205,5 @@ module.exports = (env, argv) => {
         }),
       ],
     },
-  }
+  };
 };
