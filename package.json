@@ -19,6 +19,7 @@
     "cssnano": "^6.1.2",
     "cssnano-preset-advanced": "^6.1.2",
     "del": "6.1.1",
+    "dotenv": "^17.2.3",
     "eslint": "^8.57.1",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.31.0",
