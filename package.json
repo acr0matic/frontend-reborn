@@ -72,6 +72,7 @@
   "dependencies": {
     "imask": "^7.6.1",
     "modern-normalize": "^3.0.1",
+    "sass-mq": "^7.0.0",
     "vanilla-lazyload": "^19.1.3"
   }
 }

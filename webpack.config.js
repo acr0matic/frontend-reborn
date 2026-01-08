@@ -95,22 +95,30 @@ module.exports = (env, argv) => {
           test: /\.css$/i,
           use: [
             isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
-            'css-loader'
+            {
+              loader: 'css-loader',
+              options: {
+                sourceMap: !isProduction,
+              },
+            },
           ],
         },
-
         {
           test: /\.s[ac]ss$/i,
           exclude: ['/src/scss/old/*'],
           use: [
-            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+            isProduction ? MiniCssExtractPlugin.loader  : 'style-loader',
             {
               loader: 'css-loader',
-              options: { sourceMap: !isProduction },
+              options: {
+                sourceMap: !isProduction,
+              },
             },
             {
               loader: 'postcss-loader',
-              options: { sourceMap: !isProduction },
+              options: {
+                sourceMap: !isProduction,
+              },
             },
             {
               loader: 'sass-loader',
@@ -118,8 +126,8 @@ module.exports = (env, argv) => {
                 sourceMap: !isProduction,
                 api: 'modern',
                 sassOptions: {
-                  silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin']
-                }
+                  silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin'],
+                },
               },
             },
           ],
