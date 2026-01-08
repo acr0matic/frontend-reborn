@@ -26,6 +26,3 @@ import './component/input';
 // import './component/tabs';
 
 import './utils/video-optimization';
-
-
-

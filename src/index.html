@@ -95,7 +95,7 @@
       transition: border-color .15s ease, background .15s ease;
     }
 
-    .page-item::after {
+    .page-list li::after {
       content: '';
       padding: 4px 10px;
       font-size: 12px;
@@ -111,13 +111,13 @@
       text-decoration: none;
     }
 
-    .page-item a::after {
+    .page-list a::after {
       content: '';
       position: absolute;
       inset: 0;
     }
 
-    .page-item:hover {
+    .page-list li:hover {
       background: rgba(255, 255, 255, 0.05);
     }
 
@@ -130,35 +130,35 @@
       white-space: nowrap;
     }
 
-    .status-done {
+    li.status-done {
       color: var(--done);
     }
 
-    .status-done::after {
+    li.status-done::after {
       content: 'Готово';
     }
 
-    .status-wip {
+    li.status-wip {
       color: var(--wip);
     }
 
-    .status-wip::after {
+    li.status-wip::after {
       content: 'В работе';
     }
 
-    .status-review {
+    li.status-review {
       color: var(--review);
     }
 
-    .status-review::after {
+    li.status-review::after {
       content: 'На проверке';
     }
 
-    .status-todo {
+    li.status-todo {
       color: var(--todo);
     }
 
-    .status-todo::after {
+    li.status-todo::after {
       content: 'Не начато';
     }
 
@@ -243,7 +243,7 @@
       <h2 class="column__title">Основные</h2>
 
       <ul class="page-list">
-        <li class="status-wip"><a href="page-home.html">Главная страница</a></li>
+        <li class="status-todo"><a href="page-home.html">Главная страница</a></li>
       </ul>
     </div>
 
@@ -273,7 +273,7 @@
 <footer class="layout-meta">
   <div class="layout-meta__item">
     <span class="layout-meta__label">Актуально на:</span>
-    <span class="layout-meta__value">08.01.2026</span>
+    <span class="layout-meta__value">{{ buildDate }}</span>
   </div>
 
   <div class="layout-meta__item">

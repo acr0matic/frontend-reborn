@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { execSync } = require('child_process');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlBeautifyPlugin = require('@nurminen/html-beautify-webpack-plugin');
@@ -23,6 +24,15 @@ const pages = fs
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
+  let buildDateValue = null;
+  try {
+    buildDateValue = execSync(
+      'git log -1 --format=%cd --date=format:%d.%m.%Y',
+      { encoding: 'utf8' },
+    ).trim();
+  } catch (error) {
+    buildDateValue = 'Не указано';
+  }
 
   return {
     entry: './src/js/app.js',
@@ -61,7 +71,11 @@ module.exports = (env, argv) => {
               options: {
                 plugins: [
                   postHtmlInclude({ root: includeRoot }),
-                  expressions(),
+                  expressions({
+                    locals: {
+                      buildDate: buildDateValue,
+                    },
+                  }),
                   inlineSVG({
                     cwd: includeRoot,
                     tag: 'inline',
