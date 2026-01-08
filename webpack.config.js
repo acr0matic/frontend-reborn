@@ -8,38 +8,33 @@ const inlineSVG = require('posthtml-inline-svg');
 const expressions = require('posthtml-expressions');
 
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
-const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const StylelintPlugin = require('stylelint-webpack-plugin');
 
 const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 const includeRoot = path.resolve(__dirname, 'src');
-const pages = fs.readdirSync(includeRoot).filter(fileName => fileName.endsWith('.html'));
+const pages = fs
+  .readdirSync(includeRoot)
+  .filter(file => file.endsWith('.html'));
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
 
   return {
     entry: './src/js/app.js',
-    mode: isProduction ? 'production' : 'development',
-    devtool: isProduction ? 'source-map' : 'eval-cheap-module-source-map',
 
-    stats: 'minimal',
-    cache: {
-      type: 'filesystem',
-    },
+    mode: isProduction ? 'production' : 'development',
+    devtool: 'source-map',
 
     output: {
       filename: 'js/bundle.js',
       path: path.resolve(__dirname, 'dist'),
       clean: true,
-      assetModuleFilename: (pathData) => {
-        return `assets/[path][name][ext]`;
-      },
+      assetModuleFilename: 'assets/[path][name][ext]',
     },
 
     resolve: {
@@ -50,6 +45,7 @@ module.exports = (env, argv) => {
 
     module: {
       rules: [
+        /* HTML */
         {
           test: /\.html$/i,
           use: [
@@ -57,7 +53,7 @@ module.exports = (env, argv) => {
               loader: 'html-loader',
               options: {
                 esModule: false,
-                minimize: false
+                minimize: false,
               },
             },
             {
@@ -83,18 +79,23 @@ module.exports = (env, argv) => {
             },
           ],
         },
+
+        /* ASSETS */
         {
           test: /\.(png|svg|jpe?g|gif|mp4|webp)$/i,
           type: 'asset/resource',
         },
+
         {
           test: /\.(woff2?|ttf|eot|otf)$/i,
           type: 'asset/resource',
         },
+
+        /* CSS */
         {
           test: /\.css$/i,
           use: [
-            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+            MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
@@ -103,35 +104,33 @@ module.exports = (env, argv) => {
             },
           ],
         },
+
+        /* SCSS */
         {
           test: /\.s[ac]ss$/i,
-          exclude: ['/src/scss/old/*'],
+          exclude: /old/,
           use: [
-            isProduction ? MiniCssExtractPlugin.loader  : 'style-loader',
+            MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
-                sourceMap: !isProduction,
-              },
-            },
-            {
-              loader: 'postcss-loader',
-              options: {
-                sourceMap: !isProduction,
+                sourceMap: true,
+                importLoaders: 2,
+                modules: false,
               },
             },
             {
               loader: 'sass-loader',
               options: {
                 sourceMap: !isProduction,
-                api: 'modern',
                 sassOptions: {
                   silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin'],
+                  outputStyle: isProduction ? 'compressed' : 'expanded',
                 },
               },
             },
           ],
-        }
+        },
       ],
     },
 
@@ -139,12 +138,15 @@ module.exports = (env, argv) => {
       new ESLintPlugin(),
       new StylelintPlugin({ allowEmptyInput: true }),
 
-      ...pages.map(page => new HtmlWebpackPlugin({
-        template: path.join(__dirname, 'src', page),
-        filename: page,
-        inject: 'body',
-        minify: false,
-      })),
+      ...pages.map(
+        page =>
+          new HtmlWebpackPlugin({
+            template: path.join(__dirname, 'src', page),
+            filename: page,
+            inject: 'body',
+            minify: false,
+          }),
+      ),
 
       new HtmlBeautifyPlugin({
         config: {
@@ -158,11 +160,12 @@ module.exports = (env, argv) => {
         },
       }),
 
-      isProduction && new MiniCssExtractPlugin({
-        filename: 'css/main.css'
+      new MiniCssExtractPlugin({
+        filename: 'css/main.css',
       }),
 
-      isProduction && new FaviconsWebpackPlugin({
+      isProduction &&
+      new FaviconsWebpackPlugin({
         logo: './src/assets/favicons/favicon.png',
         prefix: 'assets/favicons/',
         favicons: {
@@ -176,17 +179,16 @@ module.exports = (env, argv) => {
           },
         },
       }),
-    ],
+    ].filter(Boolean),
 
     devServer: {
       hot: true,
       port: 'auto',
-      watchFiles: ['src/layout/**/*.html', 'src/**/*.html'],
-      static: path.resolve(__dirname, 'dist')
-    },
-
-    performance: {
-      hints: isProduction ? 'warning' : false
+      static: [
+        path.resolve(__dirname, 'dist'),
+        path.resolve(__dirname, 'src')
+      ],
+      watchFiles: ['src/**/*.html', 'src/**/*.scss'],
     },
 
     optimization: {
@@ -195,23 +197,13 @@ module.exports = (env, argv) => {
         new CssMinimizerPlugin(),
         new TerserPlugin({
           parallel: true,
-          extractComments: false
-        }),
-        isProduction && new ImageMinimizerPlugin({
-          test: /\.(jpe?g|png|gif|svg|webp)$/i,
-          loader: false,
-          minimizer: {
-            implementation: ImageMinimizerPlugin.sharpMinify,
-            options: {
-              encodeOptions: {
-                jpeg: { quality: 80 },
-                webp: { quality: 85 },
-                png: { quality: 95 },
-              },
-            },
-          },
+          extractComments: false,
         }),
       ],
+    },
+
+    performance: {
+      hints: isProduction ? 'warning' : false,
     },
   };
 };

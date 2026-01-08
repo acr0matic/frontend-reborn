@@ -1,165 +1,298 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Список страниц</title>
-</head>
+  <title>Страницы проекта</title>
 
-<body class="root-page">
-  <main>
-    <div class="root-page__body">
-      <h1>Список страниц</h1>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel-bg: #181b22;
+      --border: #262a34;
+      --text: #e6e8ee;
+      --muted: #9aa0b3;
 
-      <div class="root-page__content">
-        <div class="root-page__grid">
-          <div class="root-page__col">
-            <h2>Основные страницы</h2>
-            <ol>
-              <li><a href="page-home.html">Главная</a></li>
-            </ol>
-          </div>
-
-          <div class="root-page__col">
-            <h2>Каталожные страницы</h2>
-            <ol>
-
-            </ol>
-          </div>
-
-          <div class="root-page__col">
-            <h2>Внутренние страницы</h2>
-            <ol>
-
-            </ol>
-          </div>
-
-          <div class="root-page__col">
-            <h2>Другие страницы</h2>
-            <ol>
-
-            </ol>
-          </div>
-        </div>
-      </div>
-      <!-- /.root-page__content -->
-
-      <div class="root-page__footer">
-        <p>Фигма: <a target="_blank" href="">/ссылка/</a></p>
-      </div>
-      <!-- /.root-page__footer -->
-    </div>
-    <!-- /.root-page__body -->
-  </main>
-</body>
-
-<style>
-  .root-page__body {
-    position: relative;
-
-    margin: 24px;
-    font-size: 18px;
-    color: #242424;
-  }
-
-  .root-page__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-
-    min-height: 75vh;
-    border: 1px dashed #d6d6d6;
-    border-bottom: none;
-  }
-
-  .root-page__col:not(:last-child) {
-    border-right: 1px dashed #d6d6d6;
-  }
-
-  .root-page__col {
-    padding: 24px;
-  }
-
-  .root-page__footer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 24px;
-
-    background-color: #ffffff;
-  }
-
-  h1 {
-    margin-bottom: 24px;
-
-    font-size: 40px;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  }
-
-  h2 {
-    margin-bottom: 16px;
-
-    font-weight: 500;
-    font-size: 24px;
-  }
-
-  ol li:not(:last-child) {
-    margin-bottom: 16px;
-  }
-
-  ol {
-    list-style: decimal;
-    padding-left: 20px;
-  }
-
-  a {
-    padding: 8px 0;
-  }
-
-  a:hover {
-    color: #ff6536;
-  }
-
-  @media screen and (max-width: 991px) {
-    h1 {
-      font-size: 24px;
-      text-align: center;
+      --done: #3ddc97;
+      --wip: #f5c26b;
+      --review: #6aa9ff;
+      --todo: #ff6b6b;
     }
 
-    h2 {
-      font-size: 18px;
+    * {
+      box-sizing: border-box;
     }
 
-    .root-page__body {
-      margin: 24px 12px;
+    body {
+      background: radial-gradient(1200px 600px at 20% -10%, #1c2030, transparent),
+      var(--bg);
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    .dashboard {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 32px;
+      color: var(--text);
+    }
+
+    .dashboard__header {
+      margin-bottom: 32px;
+    }
+
+    .dashboard__header h1 {
+      margin: 0 0 16px;
+      font-size: 36px;
+    }
+
+    .dashboard__header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .column {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)),
+      var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      min-height: 60vh;
+    }
+
+    .column__title {
+      margin: 0 0 16px;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .page-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .page-list li {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+      transition: border-color .15s ease, background .15s ease;
+    }
+
+    .page-item::after {
+      content: '';
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+      background: rgba(255, 255, 255, 0.04);
+      white-space: nowrap;
+    }
+
+    .page-item a,
+    .page-item span:first-child {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page-item a::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
+
+    .page-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .status {
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+      background: rgba(255, 255, 255, 0.04);
+      white-space: nowrap;
+    }
+
+    .status-done {
+      color: var(--done);
+    }
+
+    .status-done::after {
+      content: 'Готово';
+    }
+
+    .status-wip {
+      color: var(--wip);
+    }
+
+    .status-wip::after {
+      content: 'В работе';
+    }
+
+    .status-review {
+      color: var(--review);
+    }
+
+    .status-review::after {
+      content: 'На проверке';
+    }
+
+    .status-todo {
+      color: var(--todo);
+    }
+
+    .status-todo::after {
+      content: 'Не начато';
+    }
+
+    .layout-meta {
+      position: sticky;
+      bottom: 16px;
+      margin-top: auto;
+      padding: 14px 20px;
+
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)),
+      var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+
+      color: var(--text);
+    }
+
+    .layout-meta__item {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
       font-size: 14px;
     }
 
-    .root-page__grid {
-      grid-template-columns: 1fr;
-      min-height: 100vh;
-
-      margin-bottom: 120px;
-      border-bottom: 1px dashed #d6d6d6;
+    .layout-meta__item:last-child {
+      margin-left: auto;
     }
 
-    .root-page__col {
-      padding: 16px 12px;
+    .layout-meta__label {
+      color: var(--muted);
     }
 
-    .root-page__col:not(:first-child) {
-      border-top: 1px dashed #d6d6d6;
+    .layout-meta__value {
+      font-weight: 500;
     }
 
-    .root-page__footer {
-      padding: 16px;
+    .layout-meta__link {
+      color: var(--review);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(106, 169, 255, 0.4);
     }
-  }
-</style>
 
+    .layout-meta__link:hover {
+      border-bottom-color: transparent;
+    }
+
+    @media (max-width: 640px) {
+      .layout-meta {
+        gap: 12px;
+        padding: 12px 16px;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .columns {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .columns {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="root-page dashboard">
+<header class="dashboard__header">
+  <h1>Страницы проекта</h1>
+  <p>Текущее состояние вёрстки</p>
+</header>
+
+<main class="dashboard__body">
+  <section class="columns">
+    <div class="column">
+      <h2 class="column__title">Основные</h2>
+
+      <ul class="page-list">
+        <li class="status-wip"><a href="page-home.html">Главная страница</a></li>
+      </ul>
+    </div>
+
+    <div class="column">
+      <h2 class="column__title">Каталог</h2>
+
+      <ul class="page-list">
+      </ul>
+    </div>
+
+    <div class="column">
+      <h2 class="column__title">Внутренние</h2>
+
+      <ul class="page-list">
+      </ul>
+    </div>
+
+    <div class="column">
+      <h2 class="column__title">Прочее</h2>
+
+      <ul class="page-list">
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="layout-meta">
+  <div class="layout-meta__item">
+    <span class="layout-meta__label">Актуально на:</span>
+    <span class="layout-meta__value">08.01.2026</span>
+  </div>
+
+  <div class="layout-meta__item">
+    <span class="layout-meta__label">Figma:</span>
+    <a
+      class="layout-meta__link"
+      href=""
+      target="_blank"
+      rel="noopener"
+    >
+      Открыть макет
+    </a>
+  </div>
+
+  <div class="layout-meta__item">
+    <span class="layout-meta__label">Автор:</span>
+    <span class="layout-meta__value">Никита</span>
+  </div>
+</footer>
+
+</body>
 </html>
