@@ -116,6 +116,12 @@ module.exports = (env, argv) => {
                 sourceMap: !isProduction,
               },
             },
+            {
+              loader: 'postcss-loader',
+              options: {
+                sourceMap: true,
+              },
+            },
           ],
         },
 
@@ -131,6 +137,12 @@ module.exports = (env, argv) => {
                 sourceMap: true,
                 importLoaders: 2,
                 modules: false,
+              },
+            },
+            {
+              loader: 'postcss-loader',
+              options: {
+                sourceMap: true,
               },
             },
             {
