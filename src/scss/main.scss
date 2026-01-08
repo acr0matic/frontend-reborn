@@ -1,12 +1,12 @@
 @use "sass:map";
 @use "sass:color";
 @use "sass:math";
+@use 'settings/breakpoint' as *;
 
 @import "abstracts/main";
 
 @import "vendors/include/main";
 
-@import "settings/breakpoint";
 @import "settings/container";
 @import "settings/vars";
 @import "settings/fonts";

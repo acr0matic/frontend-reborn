@@ -1,5 +1,6 @@
 /* Подключение стилей библиотек */
 import "modern-normalize";
+import "sass-mq";
 
 
 

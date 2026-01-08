@@ -1,20 +1,19 @@
 @mixin make-container {
+  $container-gutter: $container-padding * 2;
+
   @each $breakpoint, $width in $container-max-widths {
-    @include breakpoint(map.get($grid-breakpoint, $breakpoint)) {
-      max-width: $width + ($container-padding * 2);
+    @include mq($from: $breakpoint) {
+      max-width: $width + $container-gutter;
     }
   }
 
-  & {
-    width: 100%;
-
-    margin: 0 auto;
-    padding: 0 $container-padding;
-  }
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 $container-padding;
 
   &--wide {
-    @include breakpoint(map.get($grid-breakpoint, "desktop")) {
-      max-width: $container-wide-width + ($container-padding * 2);
+    @include mq($from: desktop) {
+      max-width: $container-wide-width + $container-gutter;
     }
   }
 }

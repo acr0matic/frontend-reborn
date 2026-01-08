@@ -1,24 +1,31 @@
 /*
------------------------------------------------------------------------------
-Настройка брейкпоинтов для адаптива
-По умолчанию, медиа-запросы работают от уменьшения ширины экрана
+------------------------------------------------------------------------------
+Брейкпоинты проекта (sass-mq)
 
-Например: перед нами экран, МАКСИМАЛЬНАЯ ширина экрана которого равна 1200px,
-тогда срабатывает брейкпоинт и применяются нужны стили
------------------------------------------------------------------------------
+Брейкпоинты используются как семантические ключи (mobile, tablet и т.д.),
+а реальные значения ширины экрана инкапсулированы внутри sass-mq.
+
+Медиа-запросы задаются через mq():
+- $from  — min-width (от указанного брейкпоинта и выше)
+- $until — max-width (до указанного брейкпоинта)
+
+Пример:
+@include mq($from: laptop) { ... }
+@include mq($until: tablet) { ... }
+
+Изменение значений в этой карте влияет на весь проект.
+------------------------------------------------------------------------------
 */
 
-$grid-breakpoint: (
-  mobile: 540px,
-  tablet: 800px,
-  notebook: 1032px,
-  laptop: 1240px,
-  desktop: 1480px
-) !default;
 
-// Переменные для обратной адаптивности
-$breakpoint-mobile: max-width map.get($grid-breakpoint, "mobile");
-$breakpoint-tablet: max-width map.get($grid-breakpoint, "tablet");
-$breakpoint-notebook: max-width map.get($grid-breakpoint, "notebook");
-$breakpoint-laptop: max-width map.get($grid-breakpoint, "laptop");
-$breakpoint-desktop: max-width map.get($grid-breakpoint, "desktop");
+@use 'sass-mq' with (
+  $breakpoints: (
+    mobile: 540px,
+    tablet: 800px,
+    notebook: 1032px,
+    laptop: 1240px,
+    desktop: 1480px
+  )
+);
+
+@forward 'sass-mq';
