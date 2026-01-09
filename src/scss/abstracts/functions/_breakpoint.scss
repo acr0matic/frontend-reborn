@@ -1,0 +1,53 @@
+/*
+------------------------------------------------------------------------------
+Генерация брейкпоинтов на основе размеров контейнера
+
+Данный модуль автоматически формирует карту брейкпоинтов для адаптива,
+используя реальные размеры контейнеров проекта.
+
+Источник данных:
+- container.$container-max-widths — максимальные ширины контейнеров
+  (mobile, tablet, laptop и т.д.)
+- container.$container-padding    — внутренние отступы контейнера
+
+Принцип работы:
+1. Для каждого контейнера вычисляется итоговая ширина брейкпоинта:
+   container-width + (container-padding * 2) + offset
+2. offset — опциональная поправка для конкретного брейкпоинта
+3. Если offset не задан, используется значение по умолчанию (16px)
+
+Зачем это нужно:
+- Брейкпоинты всегда соответствуют фактической ширине контейнера
+- Исключаются рассинхроны между контейнерами и media queries
+- Изменение размеров контейнера автоматически обновляет брейкпоинты
+  по всему проекту
+
+Кастомизация:
+- Переопределите $breakpoint-offsets для точечной корректировки:
+  $breakpoint-offsets: (tablet: 12px, laptop: 24px);
+- При необходимости можно заменить значение offset по умолчанию
+
+Результат:
+- $generated-breakpoints — карта брейкпоинтов, готовая для передачи
+  в sass-mq или использования в собственных миксинах
+
+Важно:
+- Модуль не подключает sass-mq напрямую
+- Используется как подготовительный слой для генерации брейкпоинтов
+------------------------------------------------------------------------------
+*/
+
+@use "sass:map";
+@use "../../settings/container" as container;
+
+$breakpoint-container-widths: container.$container-max-widths !default;
+$breakpoint-gutter: container.$container-padding * 2 !default;
+$breakpoint-offsets: () !default;
+
+$generated-breakpoints: ();
+
+@each $name, $width in $breakpoint-container-widths {
+  $offset: map.get($breakpoint-offsets, $name);
+  $offset: if($offset == null, 16, $offset);
+  $generated-breakpoints: map.set($generated-breakpoints, $name, $width + $breakpoint-gutter + $offset);
+}

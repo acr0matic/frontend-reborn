@@ -13,12 +13,8 @@ $container-max-widths: (
   tablet: 768px,
   notebook: 991px,
   laptop: 1200px,
-  desktop: 1440px,
+  desktop: 1440px
 ) !default;
 
 $container-wide-width: 1800px !default;
 $container-padding: 16px !default;
-
-.container {
-  @include make-container;
-}

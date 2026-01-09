@@ -1,7 +1,49 @@
-@mixin make-container {
-  $container-gutter: $container-padding * 2;
+/*
+------------------------------------------------------------------------------
+Контейнер проекта и миксин make-container
 
-  @each $breakpoint, $width in $container-max-widths {
+Миксин make-container формирует адаптивный контейнер проекта
+на основе централизованных настроек из settings/container.
+
+Источник данных:
+- container.$container-max-widths  — карта максимальных ширин контейнера
+  для каждого брейкпоинта (mobile, tablet, laptop и т.д.)
+- container.$container-padding     — внутренние горизонтальные отступы
+- container.$container-wide-width  — ширина расширенного контейнера (wide)
+
+Принцип работы:
+1. Для каждого брейкпоинта через mq() задаётся max-width контейнера:
+   container-width + (container-padding * 2)
+2. Контейнер всегда занимает 100% ширины до достижения max-width
+3. Контейнер центрируется через margin: 0 auto
+4. Внутренние отступы задаются через padding
+
+Модификатор:
+- .container--wide
+  Использует увеличенную ширину контейнера,
+  начиная с брейкпоинта desktop, например для
+  шапки, отличающейся по ширине от основного
+  контента
+
+Зачем это нужно:
+- Контейнер и media queries всегда синхронизированы
+- Все размеры управляются из одного места
+- Изменение настроек контейнера автоматически влияет
+  на адаптив по всему проекту
+
+Использование:
+- Миксин подключается к базовому классу .container
+- Может быть переиспользован для других контейнеров при необходимости
+
+------------------------------------------------------------------------------
+*/
+
+@use "../../settings/container" as container;
+
+@mixin make-container {
+  $container-gutter: container.$container-padding * 2;
+
+  @each $breakpoint, $width in container.$container-max-widths {
     @include mq($from: $breakpoint) {
       max-width: $width + $container-gutter;
     }
@@ -9,11 +51,15 @@
 
   width: 100%;
   margin: 0 auto;
-  padding: 0 $container-padding;
+  padding: 0 container.$container-padding;
 
   &--wide {
     @include mq($from: desktop) {
-      max-width: $container-wide-width + $container-gutter;
+      max-width: container.$container-wide-width + $container-gutter;
     }
   }
+}
+
+.container {
+  @include make-container;
 }
