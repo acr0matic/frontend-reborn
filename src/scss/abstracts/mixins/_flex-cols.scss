@@ -1,0 +1,36 @@
+/*
+Флекс-сетка по колонкам с автоматическим переносом элементов
+
+Использование:
+.list {
+  @include flex-cols(4, 24px, flex-start, stretch);
+}
+
+Параметры миксина:
+$cols    — количество колонок в ряду
+$gap     — расстояние между элементами (аналог flex-gap)
+$justify — выравнивание элементов по основной оси (justify-content)
+$align   — выравнивание по поперечной оси (align-items)
+$wrap    — перенос элементов: wrap или nowrap
+*/
+
+@mixin flex-cols($cols, $gap: 0, $justify: flex-start, $align: stretch, $wrap: wrap) {
+  @if type-of($cols) != "number" or $cols < 1 {
+    @error 'flex-cols: $cols должен быть числом >= 1, передано: #{$cols}';
+  }
+
+  @if type-of($gap) != "number" or $gap < 0 {
+    @error 'flex-cols: $gap должен быть числом >= 0, передано: #{$gap}';
+  }
+
+  display: flex;
+  flex-wrap: $wrap;
+  gap: #{$gap}px;
+  align-items: $align;
+  justify-content: $justify;
+
+  > * {
+    flex: 0 0 calc((100% - #{($cols - 1) * $gap}px) / #{$cols});
+    min-width: 0;
+  }
+}
