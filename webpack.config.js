@@ -8,6 +8,7 @@ const postHtmlInclude = require('posthtml-include');
 const inlineSVG = require('posthtml-inline-svg');
 const expressions = require('posthtml-expressions');
 
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -36,6 +37,7 @@ module.exports = (env, argv) => {
 
   return {
     entry: './src/js/app.js',
+    stats: 'errors-warnings',
 
     mode: isProduction ? 'production' : 'development',
     devtool: 'source-map',
@@ -44,7 +46,14 @@ module.exports = (env, argv) => {
       filename: 'js/bundle.js',
       path: path.resolve(__dirname, 'dist'),
       clean: true,
-      assetModuleFilename: 'assets/[path][name][ext]',
+      assetModuleFilename: (pathData) => {
+        const filepath = path
+          .dirname(pathData.filename)
+          .split('/')
+          .slice(1)
+          .join('/');
+        return `${filepath}/[name][ext]`;
+      },
     },
 
     resolve: {
@@ -109,7 +118,7 @@ module.exports = (env, argv) => {
         {
           test: /\.css$/i,
           use: [
-            MiniCssExtractPlugin.loader,
+            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
             {
               loader: 'css-loader',
               options: {
@@ -130,7 +139,7 @@ module.exports = (env, argv) => {
           test: /\.s[ac]ss$/i,
           exclude: /old/,
           use: [
-            MiniCssExtractPlugin.loader,
+            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
             {
               loader: 'css-loader',
               options: {
@@ -186,9 +195,11 @@ module.exports = (env, argv) => {
         },
       }),
 
-      new MiniCssExtractPlugin({
-        filename: 'css/main.css',
+      new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
+      new CopyWebpackPlugin({
+        patterns: [{ from: './src/assets', to: 'assets/' }],
       }),
+
 
       isProduction &&
       new FaviconsWebpackPlugin({
@@ -210,11 +221,8 @@ module.exports = (env, argv) => {
     devServer: {
       hot: true,
       port: 'auto',
-      static: [
-        path.resolve(__dirname, 'dist'),
-        path.resolve(__dirname, 'src')
-      ],
-      watchFiles: ['src/**/*.html', 'src/**/*.scss'],
+      static: path.resolve(__dirname, 'dist'),
+      watchFiles: ['src/**/*.html'],
     },
 
     optimization: {
