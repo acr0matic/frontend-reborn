@@ -2,10 +2,6 @@
 @import "variables/weight";
 @import "variables/z-index";
 
-// Подключение функций
-@import "functions/breakpoint";
-@import "functions/mq";
-
 // Подключение миксинов
 @import "mixins/container";
 @import "mixins/font";

@@ -4360,7 +4360,6 @@ __metadata:
     require-dir: "npm:^1.2.0"
     sass: "npm:^1.69.5"
     sass-loader: "npm:^13.3.2"
-    sass-mq: "npm:^7.0.0"
     sharp: "npm:^0.33.5"
     style-loader: "npm:^4.0.0"
     stylelint: "npm:^15.11.0"
@@ -8746,13 +8745,6 @@ __metadata:
     sass-embedded:
       optional: true
   checksum: 10c0/5e955a4ffce35ee0a46fce677ce51eaa69587fb5371978588c83af00f49e7edc36dcf3bb559cbae27681c5e24a71284463ebe03a1fb65e6ecafa1db0620e3fc8
-  languageName: node
-  linkType: hard
-
-"sass-mq@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "sass-mq@npm:7.0.0"
-  checksum: 10c0/7bb926b7636453c243eda7be2ebe753e73ab95ee435b37c326f9db2dc9486b7ea89ae7ce6a0534455b9dfb6d71360d7b14c6b7d2a1f48985800d819106345af7
   languageName: node
   linkType: hard
 

@@ -1,3 +1,8 @@
+/* Ядро медиа-запросов */
+@import "abstracts/functions/breakpoint";
+@import "vendors/include/scss-libs/sass-mq/sass-mq";
+
+/* Основные импорты */
 @import "abstracts/main";
 
 @import "vendors/include/main";
