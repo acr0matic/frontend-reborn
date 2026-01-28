@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +26,7 @@
 
     body {
       background: radial-gradient(1200px 600px at 20% -10%, #1c2030, transparent),
-      var(--bg);
+        var(--bg);
       font-family: Inter, system-ui, sans-serif;
     }
 
@@ -65,29 +66,26 @@
 
     .column {
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)),
-      var(--panel-bg);
+        var(--panel-bg);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 20px;
       min-height: 60vh;
     }
 
-    .column__title {
+    .column h2 {
       margin: 0 0 16px;
       font-size: 20px;
       font-weight: 500;
     }
 
-    .page-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    ul {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .page-list li {
+    ul li {
       position: relative;
       display: flex;
       flex-wrap: wrap;
@@ -102,7 +100,7 @@
       transition: border-color .15s ease, background .15s ease;
     }
 
-    .page-list li::after {
+    ul li::after {
       content: '';
       padding: 4px 10px;
       font-size: 12px;
@@ -118,13 +116,13 @@
       text-decoration: none;
     }
 
-    .page-list a::after {
+    ul a::after {
       content: '';
       position: absolute;
       inset: 0;
     }
 
-    .page-list li:hover {
+    ul li:hover {
       background: rgba(255, 255, 255, 0.05);
     }
 
@@ -137,12 +135,12 @@
       white-space: nowrap;
     }
 
-    li.status-done {
-      color: var(--done);
+    li.status-todo {
+      color: var(--todo);
     }
 
-    li.status-done::after {
-      content: 'Готово';
+    li.status-todo::after {
+      content: 'Не начато';
     }
 
     li.status-wip {
@@ -161,12 +159,12 @@
       content: 'На проверке';
     }
 
-    li.status-todo {
-      color: var(--todo);
+    li.status-done {
+      color: var(--done);
     }
 
-    li.status-todo::after {
-      content: 'Не начато';
+    li.status-done::after {
+      content: 'Готово';
     }
 
     .layout-meta {
@@ -181,7 +179,7 @@
       gap: 24px;
 
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)),
-      var(--panel-bg);
+        var(--panel-bg);
       border: 1px solid var(--border);
       border-radius: 18px;
 
@@ -239,67 +237,62 @@
 </head>
 
 <body class="root-page dashboard">
-<header class="dashboard__header">
-  <h1>Страницы проекта</h1>
-  <p>Текущее состояние вёрстки</p>
-</header>
+  <header class="dashboard__header">
+    <h1>Страницы проекта</h1>
+    <p>Текущее состояние вёрстки</p>
+  </header>
 
-<main class="dashboard__body">
-  <section class="columns">
-    <div class="column">
-      <h2 class="column__title">Основные</h2>
+  <main class="dashboard__body">
+    <section class="columns">
+      <div class="column">
+        <h2>Основные</h2>
+        <ul>
+          <li class="status-"><a href="page-home.html">Главная страница</a></li>
+        </ul>
+      </div>
 
-      <ul class="page-list">
-        <li class="status-todo"><a href="page-home.html">Главная страница</a></li>
-      </ul>
+      <div class="column">
+        <h2>Каталог</h2>
+        <ul>
+
+        </ul>
+      </div>
+
+      <div class="column">
+        <h2>Внутренние</h2>
+        <ul>
+
+        </ul>
+      </div>
+
+      <div class="column">
+        <h2>Прочее</h2>
+        <ul>
+
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="layout-meta">
+    <div class="layout-meta__item">
+      <span class="layout-meta__label">Актуально на:</span>
+      <span class="layout-meta__value">{{ buildDate }}</span>
     </div>
 
-    <div class="column">
-      <h2 class="column__title">Каталог</h2>
-
-      <ul class="page-list">
-      </ul>
+    <div class="layout-meta__item">
+      <span class="layout-meta__label">Figma:</span>
+      <a class="layout-meta__link" href="https://www.figma.com/design/kRqkcEsujKz2LCY2WKYU5W/ostk-m.ru-%D0%B4%D0%BB%D1%8F-%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA%D0%BE%D0%B2?node-id=0-1&t=URm9GdpDYUZ5Nh7R-1" target="_blank" rel="noopener">
+        Открыть макет
+      </a>
     </div>
 
-    <div class="column">
-      <h2 class="column__title">Внутренние</h2>
-
-      <ul class="page-list">
-      </ul>
+    <div class="layout-meta__item">
+      <span class="layout-meta__label">Автор:</span>
+      <span class="layout-meta__value">Никита</span>
     </div>
-
-    <div class="column">
-      <h2 class="column__title">Прочее</h2>
-
-      <ul class="page-list">
-      </ul>
-    </div>
-  </section>
-</main>
-
-<footer class="layout-meta">
-  <div class="layout-meta__item">
-    <span class="layout-meta__label">Актуально на:</span>
-    <span class="layout-meta__value">{{ buildDate }}</span>
-  </div>
-
-  <div class="layout-meta__item">
-    <span class="layout-meta__label">Figma:</span>
-    <a
-      class="layout-meta__link"
-      href=""
-      target="_blank"
-      rel="noopener"
-    >
-      Открыть макет
-    </a>
-  </div>
-
-  <div class="layout-meta__item">
-    <span class="layout-meta__label">Автор:</span>
-    <span class="layout-meta__value">Никита</span>
-  </div>
-</footer>
+  </footer>
 
 </body>
+
 </html>

@@ -3,8 +3,8 @@ module.exports = ({ env }) => ({
   map: true,
   plugins: {
     autoprefixer: {},
+    'postcss-sort-media-queries': {},
     ...(env === 'production' && {
-      'postcss-sort-media-queries': {},
       cssnano: {
         preset: ['advanced', {
           reduceIdents: false,

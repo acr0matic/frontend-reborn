@@ -15,22 +15,35 @@ $wrap    — перенос элементов: wrap или nowrap
 */
 
 @mixin flex-cols($cols, $gap: 0, $justify: flex-start, $align: stretch, $wrap: wrap) {
+  $row-gap: null;
+  $col-gap: null;
+
   @if type-of($cols) != "number" or $cols < 1 {
     @error 'flex-cols: $cols должен быть числом >= 1, передано: #{$cols}';
   }
 
-  @if type-of($gap) != "number" or $gap < 0 {
-    @error 'flex-cols: $gap должен быть числом >= 0, передано: #{$gap}';
+  @if type-of($gap) == "list" {
+    $row-gap: nth($gap, 1);
+    $col-gap: if(length($gap) > 1, nth($gap, 2), nth($gap, 1));
+  } @else if type-of($gap) == "number" {
+    $row-gap: $gap;
+    $col-gap: $gap;
+  } @else {
+    @error 'flex-cols: $gap должен быть числом или списком (например: 30 или 30 20), передано: #{$gap}';
+  }
+
+  @if $row-gap < 0 or $col-gap < 0 {
+    @error 'flex-cols: значения $gap не могут быть отрицательными';
   }
 
   display: flex;
   flex-wrap: $wrap;
-  gap: #{$gap}px;
+  gap: $row-gap $col-gap;
   align-items: $align;
   justify-content: $justify;
 
   > * {
-    flex: 0 0 calc((100% - #{($cols - 1) * $gap}px) / #{$cols});
+    flex: 0 0 calc((100% - #{($cols - 1) * $col-gap}) / #{$cols});
     min-width: 0;
   }
 }
