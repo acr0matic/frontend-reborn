@@ -1,558 +1,733 @@
-// utility functions
-function triggerClick(el) {
-  var event = document.createEvent("MouseEvents");
-  event.initEvent("click", true, false);
-  el.dispatchEvent(event);
-}
-
-function triggerChange(el) {
-  var event = document.createEvent("HTMLEvents");
-  event.initEvent("change", true, false);
-  el.dispatchEvent(event);
-}
-
-function triggerFocusIn(el) {
-  var event = document.createEvent("FocusEvent");
-  event.initEvent("focusin", true, false);
-  el.dispatchEvent(event);
-}
-
-function triggerFocusOut(el) {
-  var event = document.createEvent("FocusEvent");
-  event.initEvent("focusout", true, false);
-  el.dispatchEvent(event);
-}
-
-function triggerModalOpen(el) {
-  var event = document.createEvent("UIEvent");
-  event.initEvent("modalopen", true, false);
-  el.dispatchEvent(event);
-}
-
-function triggerModalClose(el) {
-  var event = document.createEvent("UIEvent");
-  event.initEvent("modalclose", true, false);
-  el.dispatchEvent(event);
-}
-
-function triggerValidationMessage(el, type) {
-  if (type == 'invalid') {
-    addClass(this.dropdown, 'invalid');
-    removeClass(this.dropdown, 'valid');
+const triggerEvent = (el, type, init = {}) => {
+  let EventConstructor;
+  if (type === "click") {
+    EventConstructor = MouseEvent;
+  } else if (type === "change") {
+    EventConstructor = Event;
+  } else if (type.includes("focus")) {
+    EventConstructor = FocusEvent;
   } else {
-    addClass(this.dropdown, 'valid');
-    removeClass(this.dropdown, 'invalid');
+    EventConstructor = UIEvent;
   }
-}
+  const event = new EventConstructor(type, {
+    bubbles: true,
+    cancelable: false,
+    ...init,
+  });
+  el.dispatchEvent(event);
+};
 
-function attr(el, key) {
-  if (el[key] != undefined) {
-    return el[key];
-  }
-  return el.getAttribute(key);
-}
+const triggerClick = (el) => triggerEvent(el, "click");
+const triggerChange = (el) => triggerEvent(el, "change");
+const triggerFocusIn = (el) => triggerEvent(el, "focusin");
+const triggerFocusOut = (el) => triggerEvent(el, "focusout");
+const triggerModalOpen = (el) => triggerEvent(el, "modalopen");
+const triggerModalClose = (el) => triggerEvent(el, "modalclose");
 
-function data(el, key) {
-  return el.getAttribute("data-" + key);
-}
+const attr = (el, key) => el[key] !== undefined ? el[key] : el.getAttribute(key);
+const data = (el, key) => el.getAttribute("data-" + key);
+const hasClass = (el, className) => el?.classList.contains(className);
+const addClass = (el, className) => el?.classList.add(className);
+const removeClass = (el, className) => el?.classList.remove(className);
 
-function hasClass(el, className) {
-  if (el) {
-    return el.classList.contains(className);
-  } else {
-    return false;
-  }
-}
-
-function addClass(el, className) {
-  if (el) return el.classList.add(className);
-}
-
-function removeClass(el, className) {
-  if (el) return el.classList.remove(className);
-}
-
-var defaultOptions = {
+const defaultOptions = {
   data: null,
-  searchable: false,
-  showSelectedItems: false
+  searchable: true,
+  showSelectedItems: true,
+  placeholder: "Select an option",
+  searchtext: "Search",
+  selectedtext: "selected",
+  hideSelect: true
 };
 
-export default function NiceSelect(element, options) {
-  this.el = element;
-  this.config = Object.assign({}, defaultOptions, options || {});
-  this.data = this.config.data;
-  this.selectedOptions = [];
+class NiceSelect {
+  constructor(element, options = {}) {
+    if (!element) {
+      throw new Error('No element provided to NiceSelect');
+    }
 
-  this.placeholder = attr(this.el, "placeholder") || this.config.placeholder || "Select an option";
-  this.searchtext = attr(this.el, "searchtext") || this.config.searchtext || "Search";
-  this.selectedtext = attr(this.el, "selectedtext") || this.config.selectedtext || "selected";
+    if (!(element instanceof Element)) {
+      throw new Error('Invalid element provided to NiceSelect - must be a valid DOM element');
+    }
 
-  this.dropdown = null;
-  this.multiple = attr(this.el, "multiple");
-  this.disabled = attr(this.el, "disabled");
+    this.el = element;
+    this.el._niceSelect = this;
+    this.config = { ...defaultOptions, ...options };
+    this.data = this.config.data;
+    this.selectedOptions = [];
+    this.placeholder = attr(this.el, "placeholder") || this.config.placeholder;
+    this.searchtext = attr(this.el, "searchtext") || this.config.searchtext;
+    this.selectedtext = attr(this.el, "selectedtext") || this.config.selectedtext;
+    this.dropdown = null;
+    this.selectionList = null;
+    this.multiple = attr(this.el, "multiple");
+    this.disabled = attr(this.el, "disabled");
+    this.#create();
 
-  this.create();
-}
-
-NiceSelect.prototype.create = function () {
-  this.el.style.opacity = "0";
-  this.el.style.width = "0";
-  this.el.style.padding = "0";
-  this.el.style.height = "0";
-  this.el.style.fontSize = "0";
-  if (this.data) {
-    this.processData(this.data);
-  } else {
-    this.extractData();
+    this.#bindElementEvents();
   }
 
-  this.renderDropdown();
-  this.bindEvent();
-};
+  /*
+    PUBLIC FUNCTIONS
+  */
+  update(e = '') {
+    let $this = this;
+    if (e != '') {
+      $this = e.target._niceSelect;
+    }
 
-NiceSelect.prototype.processData = function (data) {
-  var options = [];
-  data.forEach(item => {
-    options.push({
+    $this.#syncDropdown();
+  }
+
+  disable() {
+    if (!this.disabled) {
+      this.disabled = true;
+      addClass(this.dropdown, "disabled");
+    }
+  }
+
+  enable() {
+    if (this.disabled) {
+      this.disabled = false;
+      removeClass(this.dropdown, "disabled");
+    }
+  }
+
+  clear() {
+    this.#resetSelectValue();
+    this.selectedOptions = [];
+    this.#renderSelectedItems();
+    this.update();
+    triggerChange(this.el);
+  }
+
+  destroy() {
+    if (this.selectionList) {
+      this.#removeSelectionList();
+    }
+
+    if (this.dropdown) {
+      this.dropdown.remove();
+      this.el.classList.remove('hidden-select');
+    }
+  }
+
+  focus(target = '') {
+    const isOpen = hasClass(this.dropdown, "open");
+
+    if (!isOpen) {
+      addClass(this.dropdown, "open");
+      triggerModalOpen(this.el);
+    } else {
+      if (this.multiple) {
+        if (target === this.dropdown.querySelector(".multiple-options")) {
+          removeClass(this.dropdown, "open");
+          triggerModalClose(this.el);
+        }
+      } else {
+        removeClass(this.dropdown, "open");
+        triggerModalClose(this.el);
+      }
+    }
+
+    if (hasClass(this.dropdown, "open")) {
+      const search = this.dropdown.querySelector(".nice-select-search");
+
+      if (search) {
+        search.value = "";
+        search.focus();
+      }
+
+      const focused = this.dropdown.querySelector(".focus");
+
+      if (focused) removeClass(focused, "focus");
+
+      const selected = this.dropdown.querySelector(".selected");
+      if (selected) addClass(selected, "focus");
+
+      this.dropdown
+        .querySelectorAll("ul li")
+        .forEach((item) => (item.style.display = ""));
+    } else {
+      this.dropdown.focus();
+    }
+  }
+
+  /*
+     PRIVATE FUNCTIONS
+  */
+  #create(initial = true) {
+    this.data ? this.#processData(this.data) : this.#extractData(initial);
+    this.el.classList.remove('hidden-select');
+    this.#renderDropdown();
+
+    if (this.config.hideSelect) {
+      this.el.classList.add('hidden-select');
+    }
+    this.#bindDropdownEvents();
+  }
+
+  #processData(data) {
+    this.options = data.map((item) => ({
       data: item,
       attributes: {
         selected: !!item.selected,
         disabled: !!item.disabled,
-        optgroup: item.value == 'optgroup'
+        optgroup: item.value === "optgroup",
+      },
+    }));
+  }
+
+  #extractData(initial) {
+    const options = Array.from(this.el.querySelectorAll("option,optgroup"));
+    const allOptions = [];
+    const selectedOptions = [];
+
+    this.data = options.map((item) => {
+      let itemData;
+
+      let selected = item.selected;
+
+      // First item is marked as selected on default selects
+      if (initial && item.selected && !item.defaultSelected) {
+        selected = false;
       }
+
+      if (item.tagName === "OPTGROUP") {
+        itemData = { text: item.label, value: "optgroup" };
+      } else {
+        const text = item.dataset.display ?? item.innerText;
+        itemData = {
+          text,
+          value: item.value,
+          extra: item.dataset.extra,
+          selected: selected,
+          disabled: item.disabled,
+        };
+      }
+
+      const attributes = {
+        selected: selected,
+        disabled: item.disabled,
+        optgroup: item.tagName === "OPTGROUP",
+      };
+
+      const optionObj = { data: itemData, attributes, element: null };
+
+      allOptions.push(optionObj);
+
+      if (attributes.selected) selectedOptions.push(optionObj);
+
+      return itemData;
     });
-  });
-  this.options = options;
-};
 
-NiceSelect.prototype.extractData = function () {
-  var options = this.el.querySelectorAll("option,optgroup");
-  var data = [];
-  var allOptions = [];
-  var selectedOptions = [];
+    this.options = allOptions;
+    this.selectedOptions = selectedOptions;
+  }
 
-  options.forEach(item => {
-    if (item.tagName == 'OPTGROUP') {
-      var itemData = {
-        text: item.label,
-        value: 'optgroup'
-      };
-    } else {
-      let text = item.innerText;
-      if (item.dataset.display != undefined) {
-        text = item.dataset.display;
+  #renderDropdown() {
+    const classes = [
+      "nice-select",
+      attr(this.el, "class") || "",
+      this.disabled ? "disabled" : "",
+      this.multiple ? "has-multiple" : "",
+    ].filter(Boolean);
+
+    const searchHtml = this.config.searchable
+      ? `
+      <div class="nice-select-search-box">
+        <input type="text" class="nice-select-search" placeholder="${this.searchtext}..." title="search"/>
+      </div>
+    `
+      : "";
+
+    const html = `
+      <div class="${classes.join(" ")}" tabindex="${this.disabled ? "" : 0}">
+        <span class="${this.multiple ? "multiple-options" : "current"}"></span>
+        <div class="nice-select-dropdown">
+          ${searchHtml}
+          <ul class="list"></ul>
+        </div>
+      </div>
+    `;
+
+    this.el.insertAdjacentHTML("afterend", html);
+
+    this.dropdown = this.el.nextElementSibling;
+
+    this.#renderSelectedItems();
+
+    this.#renderItems();
+  }
+
+  /*
+    Updates the text shown in the dropdown header
+  */
+  #renderSelectedItems() {
+    if (this.multiple) {
+      let selectedHtml = "";
+
+      if (
+        window.getComputedStyle(this.dropdown).width === "auto" ||
+        this.selectedOptions.length < 2
+      ) {
+        this.selectedOptions.forEach((item, index, array) => {
+          let text = item.data.text;
+
+          if (index !== array.length - 1) {
+            text += `, `;
+          }
+
+          let span = document.createElement("span");
+          span.classList.add("current");
+          span.textContent = text;
+
+          selectedHtml += span.outerHTML;
+        });
+
+        selectedHtml = selectedHtml || this.placeholder;
+      } else {
+        selectedHtml = `${this.selectedOptions.length} ${this.selectedtext}`;
       }
 
-      var itemData = {
-        text: text,
-        value: item.value,
-        extra: item.dataset.extra,
-        selected: item.getAttribute("selected") != null,
-        disabled: item.getAttribute("disabled") != null
-      };
+      this.dropdown.querySelector(".multiple-options").innerHTML = selectedHtml;
+    } else {
+      const text = this.selectedOptions.length > 0 ? this.selectedOptions[0].data.text : this.placeholder;
+
+      this.dropdown.querySelector(".current").textContent = text;
+    }
+  }
+
+  #renderItems() {
+    const ul = this.dropdown.querySelector("ul");
+
+    this.options.forEach((item) => {
+
+      if (this.multiple && this.config.showSelectedItems) {
+        this.#multipleListAdd(item);
+      }
+
+      ul.appendChild(this.#renderItem(item));
+    });
+  }
+
+  #renderItem(option) {
+    const li = document.createElement("li");
+    li.textContent = option.data.text;
+
+    if (option.data.extra !== undefined) {
+      li.appendChild(this.#renderItemExtra(option.data.extra));
     }
 
-    var attributes = {
-      selected: item.getAttribute("selected") != null,
-      disabled: item.getAttribute("disabled") != null,
-      optgroup: item.tagName == 'OPTGROUP'
-    };
-
-    data.push(itemData);
-    allOptions.push({ data: itemData, attributes: attributes });
-  });
-
-  this.data = data;
-  this.options = allOptions;
-  this.options.forEach(item => {
-    if (item.attributes.selected) {
-      selectedOptions.push(item);
+    if (option.attributes.optgroup) {
+      addClass(li, "optgroup");
+    } else {
+      li.setAttribute("data-value", option.data.value);
+      const classList = ["option"];
+      if (option.attributes.selected) classList.push("selected");
+      if (option.attributes.disabled) classList.push("disabled");
+      li.classList.add(...classList);
+      li.addEventListener("click", (e) => this.#onDropdownItemClicked(option, e));
     }
-  });
 
-  this.selectedOptions = selectedOptions;
-};
+    option.element = li;
 
-NiceSelect.prototype.renderDropdown = function () {
-  var classes = [
-    "nice-select",
-    attr(this.el, "class") || "",
-    this.disabled ? "disabled" : "",
-    this.multiple ? "has-multiple" : ""
-  ];
+    return li;
+  }
 
-  let searchHtml = `<div class="nice-select-search-box">`;
-  searchHtml += `<input type="text" class="nice-select-search" placeholder="${this.searchtext}..." title="search"/>`;
-  searchHtml += `</div>`;
+  #renderItemExtra(content) {
+    const span = document.createElement("span");
+    span.innerHTML = content;
+    addClass(span, "extra");
 
-  var html = `<div class="${classes.join(" ")}" tabindex="${this.disabled ? null : 0}">`;
-  html += `<span class="${this.multiple ? "multiple-options" : "current"}"></span>`;
-  html += `<div class="nice-select-dropdown">`;
-  html += `${this.config.searchable ? searchHtml : ""}`;
-  html += `<ul class="list"></ul>`;
-  html += `</div>`;
-  html += `</div>`;
+    return span;
+  }
 
-  this.el.insertAdjacentHTML("afterend", html);
+  #bindElementEvents() {
+    this.el.addEventListener("invalid", () => this.#triggerValidationMessage("invalid"));
+    window.addEventListener("click", e => this.#onClickedOutside(e));
+    this.el.addEventListener("change", this.update);
+  }
 
-  this.dropdown = this.el.nextElementSibling;
-  this._renderSelectedItems();
-  this._renderItems();
-};
+  #bindDropdownEvents() {
+    this.dropdown.addEventListener("click", (e) => this.#onClicked(e));
+    this.dropdown.addEventListener("keydown", (e) => this.#onKeyPressed(e));
+    this.dropdown.addEventListener("focusin", () => triggerFocusIn(this.el));
+    this.dropdown.addEventListener("focusout", () => triggerFocusOut(this.el));
 
-NiceSelect.prototype._renderSelectedItems = function () {
-  if (this.multiple) {
-    var selectedHtml = "";
-    if (this.config.showSelectedItems || this.config.showSelectedItems || window.getComputedStyle(this.dropdown).width == 'auto' || this.selectedOptions.length < 2) {
-      this.selectedOptions.forEach(function (item) {
-        selectedHtml += `<span class="current">${item.data.text}</span>`;
+    if (this.config.searchable) this.#bindSearchEvent();
+  }
+
+  #bindSearchEvent() {
+    const searchBox = this.dropdown.querySelector(".nice-select-search");
+    if (searchBox) {
+      searchBox.addEventListener("click", (e) => e.stopPropagation());
+      searchBox.addEventListener("input", (e) => this.#onSearchChanged(e));
+    }
+  }
+
+  #onClicked(e) {
+    e.preventDefault();
+
+    this.focus(e.target);
+  }
+
+  #onDropdownItemClicked(option, e) {
+    const optionEl = e.target;
+
+    if (hasClass(optionEl, "disabled")) {
+      return;
+    }
+
+    if (this.multiple) {
+      let selected;
+
+      if (hasClass(optionEl, "selected")) {
+        selected = false;
+
+        removeClass(optionEl, "selected");
+
+        // Update Selected Options
+        this.selectedOptions = this.selectedOptions.filter(
+          (item) => item.data !== option.data
+        );
+      } else {
+        selected = true;
+
+        addClass(optionEl, "selected");
+
+        // Update Selected Options
+        this.selectedOptions.push(option);
+      }
+
+      // Update option
+      option.data.selected = selected;
+      option.attributes.selected = selected;
+    } else {
+      // Mark all dropdown options as unselected
+      this.dropdown.querySelectorAll('li.selected').forEach((li) => removeClass(li, "selected"));
+
+      // add the selected class to the current
+      addClass(optionEl, "selected");
+
+      // Update Selected Options Attribute
+      this.selectedOptions = [option];
+
+      // Update option properties
+      let prevSelected = this.options.find(item => item.attributes.selected);
+      if (prevSelected) {
+        prevSelected.data.selected = false;
+        prevSelected.attributes.selected = false;
+      }
+
+      option.data.selected = true;
+      option.attributes.selected = true;
+    }
+
+    this.#renderSelectedItems();
+
+    this.#syncSelectValue();
+
+    this.#syncSelectionList();
+  }
+
+  /*
+    Syncs the original select element with the dropdown
+  */
+  #syncSelectValue() {
+    const select = this.el;
+
+    if (this.selectedOptions.length > 0) {
+      select.value = this.selectedOptions[0].data.value;
+    } else {
+      // no value selected
+      select.value = '';
+      select.selectedIndex = -1;
+    }
+
+    this.options.forEach(item => {
+      let matchingOption = Array.from(select.options).find(option => {
+        const a = String(option.dataset.display || option.textContent).trim().toLowerCase();
+        const b = String(item.data.text).trim().toLowerCase();
+        return a === b;
       });
 
-      selectedHtml = selectedHtml == "" ? this.placeholder : selectedHtml;
-    } else {
-      selectedHtml = this.selectedOptions.length + ' ' + this.selectedtext;
+      if (matchingOption == undefined) {
+        matchingOption = Array.from(select.options).find(option => {
+          const a = String(option.value).trim().toLowerCase();
+          const b = String(item.data.value).trim().toLowerCase();
+          return a === b;
+        });
+      }
+
+      if (matchingOption == undefined) {
+        console.warn(`No matching option found for value: "${item.data.value}" in select element`, select);
+        return;
+      }
+
+      if (item.attributes.selected) {
+        matchingOption.selected = true;
+      } else {
+        matchingOption.selected = false;
+      }
+    });
+
+    // Remove the event listener so we don't create a loop
+    select.removeEventListener("change", this.update);
+
+    triggerChange(select);
+
+    // Add event listener again
+    select.addEventListener("change", this.update);
+  }
+
+  #resetSelectValue() {
+    if (this.multiple) {
+      const select = this.el;
+      this.selectedOptions.forEach((item) => {
+        const el = select.querySelector(`option[value="${item.data.value}"]`);
+        if (el) {
+          el.selected = false;
+        }
+      });
+    } else if (this.selectedOptions.length > 0) {
+      this.el.selectedIndex = -1;
     }
 
-    this.dropdown.querySelector(".multiple-options").innerHTML = selectedHtml;
-  } else {
-    var html = this.selectedOptions.length > 0 ? this.selectedOptions[0].data.text : this.placeholder;
-
-    this.dropdown.querySelector(".current").innerHTML = html;
-  }
-};
-
-NiceSelect.prototype._renderItems = function () {
-  var ul = this.dropdown.querySelector("ul");
-  this.options.forEach(item => {
-    ul.appendChild(this._renderItem(item));
-  });
-};
-
-NiceSelect.prototype._renderItem = function (option) {
-  var el = document.createElement("li");
-
-  el.innerHTML = option.data.text;
-
-  if (option.data.extra != undefined) {
-    el.appendChild(this._renderItemExtra(option.data.extra));
+    triggerChange(this.el);
   }
 
-  if (option.attributes.optgroup) {
-    addClass(el, 'optgroup');
-  } else {
-    el.setAttribute("data-value", option.data.value);
-    var classList = [
-      "option",
-      option.attributes.selected ? "selected" : null,
-      option.attributes.disabled ? "disabled" : null,
-    ];
+  /*
+    Syncs the dropdown with the select
+  */
+  #syncDropdown() {
+    if (this.dropdown) {
+      const open = hasClass(this.dropdown, "open");
 
-    el.addEventListener("click", this._onItemClicked.bind(this, option));
-    el.classList.add(...classList);
-  }
+      this.#removeSelectionList();
 
-  option.element = el;
-  return el;
-};
+      this.dropdown.remove();
 
-NiceSelect.prototype._renderItemExtra = function (content) {
-  var el = document.createElement("span");
-  el.innerHTML = content;
-  addClass(el, "extra");
-  return el;
-}
+      this.data = null;
 
-NiceSelect.prototype.update = function () {
-  this.extractData();
-  if (this.dropdown) {
-    var open = hasClass(this.dropdown, "open");
-    this.dropdown.parentNode.removeChild(this.dropdown);
-    this.create();
+      this.#create(false);
 
-    if (open) {
-      triggerClick(this.dropdown);
+      if (open) {
+        triggerClick(this.dropdown);
+      }
     }
+
+    attr(this.el, "disabled") ? this.disable() : this.enable();
   }
 
-  if (attr(this.el, "disabled")) {
-    this.disable();
-  } else {
-    this.enable();
-  }
-};
+  /*
+    Syncs the selected list with the dropdown
+  */
+  #syncSelectionList() {
+    if (!this.config.showSelectedItems) {
+      return;
+    }
 
-NiceSelect.prototype.disable = function () {
-  if (!this.disabled) {
-    this.disabled = true;
-    addClass(this.dropdown, "disabled");
-  }
-};
+    this.#removeSelectionList();
 
-NiceSelect.prototype.enable = function () {
-  if (this.disabled) {
-    this.disabled = false;
-    removeClass(this.dropdown, "disabled");
-  }
-};
-
-NiceSelect.prototype.clear = function () {
-  this.resetSelectValue();
-  this.selectedOptions = [];
-  this._renderSelectedItems();
-  this.update();
-
-  triggerChange(this.el);
-};
-
-NiceSelect.prototype.destroy = function () {
-  if (this.dropdown) {
-    this.dropdown.parentNode.removeChild(this.dropdown);
-    this.el.style.display = "";
-  }
-};
-
-NiceSelect.prototype.bindEvent = function () {
-  var $this = this;
-  this.dropdown.addEventListener("click", this._onClicked.bind(this));
-  this.dropdown.addEventListener("keydown", this._onKeyPressed.bind(this));
-  this.dropdown.addEventListener("focusin", triggerFocusIn.bind(this, this.el));
-  this.dropdown.addEventListener("focusout", triggerFocusOut.bind(this, this.el));
-  this.el.addEventListener("invalid", triggerValidationMessage.bind(this, this.el, 'invalid'));
-  window.addEventListener("click", this._onClickedOutside.bind(this));
-
-  if (this.config.searchable) {
-    this._bindSearchEvent();
-  }
-};
-
-NiceSelect.prototype._bindSearchEvent = function () {
-  var searchBox = this.dropdown.querySelector(".nice-select-search");
-  if (searchBox) {
-    searchBox.addEventListener("click", function (e) {
-      e.stopPropagation();
-      return false;
+    // Update multiple list
+    this.selectedOptions.forEach(item => {
+      this.#multipleListAdd(item);
     });
   }
 
-  searchBox.addEventListener("input", this._onSearchChanged.bind(this));
-};
-
-NiceSelect.prototype._onClicked = function (e) {
-  e.preventDefault();
-  if (!hasClass(this.dropdown, "open")) {
-    addClass(this.dropdown, "open");
-    triggerModalOpen(this.el);
-  } else {
-    if (this.multiple) {
-      if (e.target == this.dropdown.querySelector('.multiple-options')) {
-        removeClass(this.dropdown, "open");
-        triggerModalClose(this.el);
-      }
-
-    } else {
+  #onClickedOutside(e) {
+    if (!this.dropdown.contains(e.target)) {
       removeClass(this.dropdown, "open");
       triggerModalClose(this.el);
     }
   }
 
-  if (hasClass(this.dropdown, "open")) {
-    var search = this.dropdown.querySelector(".nice-select-search");
-    if (search) {
-      search.value = "";
-      search.focus();
-    }
+  #onKeyPressed(e) {
+    const focusedOption = this.dropdown.querySelector(".focus");
+    const isOpen = hasClass(this.dropdown, "open");
 
-    var t = this.dropdown.querySelector(".focus");
-    removeClass(t, "focus");
-    t = this.dropdown.querySelector(".selected");
-    addClass(t, "focus");
-    this.dropdown.querySelectorAll("ul li").forEach(function (item) {
-      item.style.display = "";
-    });
-  } else {
-    this.dropdown.focus();
-  }
-};
-
-NiceSelect.prototype._onItemClicked = function (option, e) {
-  var optionEl = e.target;
-
-  if (!hasClass(optionEl, "disabled")) {
-    if (this.multiple) {
-      if (hasClass(optionEl, "selected")) {
-        removeClass(optionEl, "selected");
-        this.selectedOptions.splice(this.selectedOptions.indexOf(option), 1);
-        this.el.querySelector(`option[value="${optionEl.dataset.value}"]`).removeAttribute('selected');
+    if (e.keyCode === 13) {
+      isOpen ? triggerClick(focusedOption) : triggerClick(this.dropdown);
+    } else if (e.keyCode === 40) {
+      if (!isOpen) {
+        triggerClick(this.dropdown);
       } else {
-        addClass(optionEl, "selected");
-        this.selectedOptions.push(option);
+        const next = this.#findNext(focusedOption);
+        if (next) {
+          if (focusedOption) removeClass(focusedOption, "focus");
+          addClass(next, "focus");
+        }
       }
-    } else {
-      this.options.forEach(function (item) {
-        removeClass(item.element, "selected");
-      });
-      this.selectedOptions.forEach(function (item) {
-        removeClass(item.element, "selected");
-      });
-
-      addClass(optionEl, "selected");
-      this.selectedOptions = [option];
-    }
-
-    this._renderSelectedItems();
-    this.updateSelectValue();
-  }
-};
-
-NiceSelect.prototype.updateSelectValue = function () {
-  if (this.multiple) {
-    var select = this.el;
-    this.selectedOptions.forEach(function (item) {
-      var el = select.querySelector(`option[value="${item.data.value}"]`);
-      if (el) {
-        el.setAttribute("selected", true);
+      e.preventDefault();
+    } else if (e.keyCode === 38) {
+      if (!isOpen) {
+        triggerClick(this.dropdown);
+      } else {
+        const prev = this.#findPrev(focusedOption);
+        if (prev) {
+          if (focusedOption) removeClass(focusedOption, "focus");
+          addClass(prev, "focus");
+        }
       }
-    });
-  } else if (this.selectedOptions.length > 0) {
-    this.el.value = this.selectedOptions[0].data.value;
-  }
-  triggerChange(this.el);
-};
-
-NiceSelect.prototype.resetSelectValue = function () {
-  if (this.multiple) {
-    var select = this.el;
-    this.selectedOptions.forEach(function (item) {
-      var el = select.querySelector(`option[value="${item.data.value}"]`);
-      if (el) {
-        el.removeAttribute("selected");
-      }
-    });
-  } else if (this.selectedOptions.length > 0) {
-    this.el.selectedIndex = -1;
-  }
-
-  triggerChange(this.el);
-};
-
-NiceSelect.prototype._onClickedOutside = function (e) {
-  if (!this.dropdown.contains(e.target)) {
-    removeClass(this.dropdown, "open");
-    triggerModalClose(this.el);
-  }
-};
-
-NiceSelect.prototype._onKeyPressed = function (e) {
-  // Keyboard events
-
-  var focusedOption = this.dropdown.querySelector(".focus");
-
-  var open = hasClass(this.dropdown, "open");
-
-  // Enter
-  if (e.keyCode == 13) {
-    if (open) {
-      triggerClick(focusedOption);
-    } else {
+      e.preventDefault();
+    } else if (e.keyCode === 27 && isOpen) {
       triggerClick(this.dropdown);
+    } else if (e.keyCode === 32 && isOpen) {
+      return false;
     }
-  } else if (e.keyCode == 40) {
-    // Down
-    if (!open) {
-      triggerClick(this.dropdown);
-    } else {
-      var next = this._findNext(focusedOption);
-      if (next) {
-        var t = this.dropdown.querySelector(".focus");
-        removeClass(t, "focus");
-        addClass(next, "focus");
-      }
+
+    const focus = this.dropdown.querySelector('.focus');
+    if (focus) {
+      focus.scrollIntoView({ block: 'center' });
     }
-    e.preventDefault();
-  } else if (e.keyCode == 38) {
-    // Up
-    if (!open) {
-      triggerClick(this.dropdown);
-    } else {
-      var prev = this._findPrev(focusedOption);
-      if (prev) {
-        var t = this.dropdown.querySelector(".focus");
-        removeClass(t, "focus");
-        addClass(prev, "focus");
-      }
-    }
-    e.preventDefault();
-  } else if (e.keyCode == 27 && open) {
-    // Esc
-    triggerClick(this.dropdown);
-  } else if (e.keyCode === 32 && open) {
-    // Space
+
     return false;
   }
-  return false;
-};
 
-NiceSelect.prototype._findNext = function (el) {
-  if (el) {
-    el = el.nextElementSibling;
-  } else {
-    el = this.dropdown.querySelector(".list .option");
-  }
-
-  while (el) {
-    if (!hasClass(el, "disabled") && el.style.display != "none") {
-      return el;
+  #findNext(el) {
+    let nextEl = el
+      ? el.nextElementSibling
+      : this.dropdown.querySelector(".list .option");
+    while (nextEl) {
+      if (!hasClass(nextEl, "disabled") && nextEl.style.display !== "none")
+        return nextEl;
+      nextEl = nextEl.nextElementSibling;
     }
-    el = el.nextElementSibling;
+
+    return null;
   }
 
-  return null;
-};
-
-NiceSelect.prototype._findPrev = function (el) {
-  if (el) {
-    el = el.previousElementSibling;
-  } else {
-    el = this.dropdown.querySelector(".list .option:last-child");
-  }
-
-  while (el) {
-    if (!hasClass(el, "disabled") && el.style.display != "none") {
-      return el;
+  #findPrev(el) {
+    let prevEl = el
+      ? el.previousElementSibling
+      : this.dropdown.querySelector(".list .option:last-child");
+    while (prevEl) {
+      if (!hasClass(prevEl, "disabled") && prevEl.style.display !== "none")
+        return prevEl;
+      prevEl = prevEl.previousElementSibling;
     }
-    el = el.previousElementSibling;
+
+    return null;
   }
 
-  return null;
-};
+  #onSearchChanged(e) {
+    const text = e.target.value.toLowerCase();
 
-NiceSelect.prototype._onSearchChanged = function (e) {
-  var open = hasClass(this.dropdown, "open");
-  var text = e.target.value;
-  text = text.toLowerCase();
+    if (text === "") {
+      this.options.forEach((item) => (item.element.style.display = ""));
+    } else if (hasClass(this.dropdown, "open")) {
+      const matchReg = new RegExp(text);
+      this.options.forEach((item) => {
+        item.element.style.display = matchReg.test(item.data.text.toLowerCase())
+          ? ""
+          : "none";
+      });
+    }
 
-  if (text == "") {
-    this.options.forEach(function (item) {
-      item.element.style.display = "";
-    });
-  } else if (open) {
-    var matchReg = new RegExp(text);
-    this.options.forEach(function (item) {
-      var optionText = item.data.text.toLowerCase();
-      var matched = matchReg.test(optionText);
-      item.element.style.display = matched ? "" : "none";
-    });
+    this.dropdown
+      .querySelectorAll(".focus")
+      .forEach((item) => removeClass(item, "focus"));
+
+    const firstEl = this.#findNext(null);
+
+    if (firstEl) addClass(firstEl, "focus");
   }
 
-  this.dropdown.querySelectorAll(".focus").forEach(function (item) {
-    removeClass(item, "focus");
-  });
+  #triggerValidationMessage(type) {
+    if (type === "invalid") {
+      addClass(this.dropdown, "invalid");
+      removeClass(this.dropdown, "valid");
+    } else {
+      addClass(this.dropdown, "valid");
+      removeClass(this.dropdown, "invalid");
+    }
+  }
 
-  var firstEl = this._findNext(null);
-  addClass(firstEl, "focus");
-};
+  #removeSelectionList() {
+    if (this.selectionList != null) {
+      this.selectionList.remove();
+      this.selectionList = null;
+    }
+  }
 
+  #multipleListAdd(option) {
+    if (!this.multiple || option.data.disabled || option.data.value == "" || !option.attributes.selected) {
+      return;
+    }
+
+    // Create the list
+    if (this.selectionList == null) {
+      this.selectionList = document.createElement('ul');
+      this.selectionList.classList.add('select-selection-list');
+
+      this.el.after(this.selectionList);
+    }
+
+    // Option is already in the list
+    else if (this.selectionList.querySelector(`[data-value="${option.data.value}"]`) != null) {
+      return;
+    }
+
+    // Create a list element
+    let li = document.createElement('li');
+    li.classList.add('select-selection');
+
+    li.dataset.value = option.data.value;
+
+    // Create a remove button
+    let button = document.createElement('button');
+    button.classList.add('small', 'remove-select-selection');
+
+    let span = document.createElement('span');
+    span.classList.add('remove-select-selection');
+    span.textContent = 'x';
+
+    button.appendChild(span);
+
+    li.appendChild(button);
+
+    // Add the option text
+    span = document.createElement('span');
+    span.classList.add('selected-name');
+    span.textContent = option.data.text;
+
+    li.appendChild(span);
+
+    this.selectionList.appendChild(li);
+
+    // Add listener
+    li.querySelectorAll('.remove-select-selection').forEach(el => el.addEventListener("click", this.#multipleListRemove.bind(this)));
+  }
+
+  #multipleListRemove(target) {
+
+    if (this.selectionList == null) {
+      return;
+    }
+
+    if (target.target != null) {
+      target = target.target;
+    }
+
+    // Close button not clicked
+    if (target.matches == undefined || !target.matches('.remove-select-selection')) {
+      return;
+    }
+
+    // Find the dropdown item and click it
+    let parent = target.closest('li.select-selection');
+
+    let el = this.options.find(item => item.data.value === parent.dataset.value).element;
+
+    // only click when currently selected
+    if (el && el.matches('.selected')) {
+      el.click();
+    }
+  }
+}
+
+export default NiceSelect;
 export function bind(el, options) {
   return new NiceSelect(el, options);
 }
