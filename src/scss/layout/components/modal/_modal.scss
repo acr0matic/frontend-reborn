@@ -1,42 +1,68 @@
 .modal {
-  &__container {
-    position: relative;
+  position: fixed;
+  z-index: $z-index-modal;
+  inset: 0;
+  overflow: hidden;
+  height: 100dvh;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: $transition-time ease;
+
+  &.is-show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
   }
 
-  &__header {
-  }
+  &__overlay {
+    position: absolute;
+    inset: 0;
 
-  &__title {
+    transition: $transition-time ease;
+    backdrop-filter: blur(15px);
   }
 
   &__close {
+    @include mq($until: tablet) {
+      top: 12px;
+      right: 12px;
+      width: 16px;
+      height: 16px;
+    }
+
     position: absolute;
     z-index: 3;
-    top: 10px;
-    right: 5px;
+    top: 30px;
+    right: 30px;
 
     width: 20px;
     height: 20px;
 
-    border: none;
-    outline: none;
-
-    background-image: url("data:image/svg+xml,%3Csvg width='22' height='21' viewBox='0 0 22 21' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect y='17.8113' width='25.189' height='4' rx='2' transform='rotate(-45 0 17.8113)' fill='black'/%3E%3Crect x='3.18945' y='0.000732422' width='25.2426' height='4' rx='2' transform='rotate(45 3.18945 0.000732422)' fill='black'/%3E%3C/svg%3E%0A");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' fill='none'%3E%3Cpath d='M1 1L21 21' stroke='%23333333' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M21 1L1 21' stroke='%23333333' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
 
     cursor: pointer;
 
-    transition: opacity 0.15s ease;
+    transition: $transition-time ease;
 
     @media (hover: hover) {
       &:hover {
         opacity: 0.5;
       }
     }
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -1.6rem;
+    }
   }
 
-  &__content {
+  &__conainer {
+    position: relative;
+    z-index: 2;
   }
 }

@@ -1,7 +1,7 @@
 /* Прописываются все инициализации и первичные параметры для скриптов */
 
 import LazyLoad from 'vanilla-lazyload';
-import HystModal from "../libs/hystmodal";
+import { Modal } from '../component/modal';
 
 /* Ленивая загрузка */
 
@@ -21,17 +21,7 @@ export const lazyBackgroundController = new LazyLoad({
 
 /* --------- */
 
-
-
-/* Модальные окна */
-
-export const modalManager = new HystModal({
-  linkAttributeName: "data-modal",
-  waitTransitions: true,
-  backscroll: false,
-});
-
-window.modalManager = modalManager;
 window.lazyload = lazyImageController;
+window.modal = new Modal();
 
 /* --------- */
