@@ -17,11 +17,8 @@ import './layout/menu';
 
 import './layout/page/home';
 
-import './component/accordion';
 import './component/form';
-import './component/submenu';
 import './component/input';
-import './component/modal';
 // import './component/gallery';
 // import './component/select';
 // import './component/tabs';

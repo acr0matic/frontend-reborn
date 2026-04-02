@@ -1,45 +1,47 @@
-<div class="modal mw-callback">
-  <div class="modal__overlay"></div>
-  <div class="modal__wrapper">
+<div class="modal mw-callback" data-modal="callback">
+  <div class="modal__overlay">
     <div class="modal__container">
-      <div class="modal__header">
-        <p class="modal__title">Заголовок формы</p>
-        <div class="modal__close" data-modal-close></div>
-      </div>
-      <!-- /.modal__header -->
+      <div class="modal__wrapper">
+        <div class="modal__header">
+          <p class="modal__title">Заголовок формы</p>
+          <div class="modal__close" data-modal-close></div>
+        </div>
+        <!-- /.modal__header -->
 
-      <div class="modal__content">
-        <form class="form form-custom" action="">
-          <div class="form__wrapper">
-            <div class="input">
-              <input placeholder="" autocomplete="off" type="text" name="user_name" class="input__field">
-              <span class="input__label">Имя</span>
+        <div class="modal__content">
+          <form class="form form-custom" action="">
+            <div class="form__wrapper">
+              <div class="input">
+                <input placeholder="" autocomplete="off" type="text" name="user_name" class="input__field">
+                <span class="input__label">Имя</span>
+              </div>
+              <!-- /.input -->
+
+              <div class="input input--box">
+                <textarea placeholder="" class="input__field" name="user_message"></textarea>
+                <span class="input__label">Комментарий</span>
+              </div>
+              <!-- /.input -->
             </div>
-            <!-- /.input -->
+            <!-- /.form__wrapper -->
 
-            <div class="input input--box">
-              <textarea placeholder="" class="input__field" name="user_message"></textarea>
-              <span class="input__label">Комментарий</span>
+            <div class="form__action">
+              <button class="button button-primary"><span>Отправить</span></button>
             </div>
-            <!-- /.input -->
-          </div>
-          <!-- /.form__wrapper -->
+            <!-- /.form__action -->
 
-          <div class="form__action">
-            <button class="button button-primary"><span>Отправить</span></button>
-          </div>
-          <!-- /.form__action -->
-
-          <div class="form__privacy">
-            <p>Нажимая на кнопку, вы соглашаетесь с условиями обработки персональных данных и <span><a class="link" href="">политикой конфиденциальности</a></span></p>
-          </div>
-          <!-- /.form__privacy -->
-        </form>
+            <div class="form__privacy">
+              <p>Нажимая на кнопку, вы соглашаетесь с условиями обработки персональных данных и <span><a class="link" href="">политикой конфиденциальности</a></span></p>
+            </div>
+            <!-- /.form__privacy -->
+          </form>
+        </div>
+        <!-- /.modal__content -->
       </div>
-      <!-- /.modal__content -->
+      <!-- /.modal__wrapper -->
     </div>
     <!-- /.modal__container -->
   </div>
-  <!-- /.modal__wrapper -->
+  <!-- /.modal__overlay -->
 </div>
 <!-- /.modal -->
