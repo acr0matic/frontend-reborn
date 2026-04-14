@@ -9,7 +9,7 @@
   },
   "repository": "github:acr0matic/frontend-reborn",
   "bugs": "https://github.com/acr0matic/frontend-reborn/issues",
-  "packageManager": "yarn@4.11.0",
+  "packageManager": "yarn@4.13.0",
   "devDependencies": {
     "@nurminen/html-beautify-webpack-plugin": "^1.1.4",
     "autoprefixer": "^10.4.21",
