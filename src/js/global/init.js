@@ -33,10 +33,13 @@ const accordionController = new Accordion({
 const modalController = new Modal({
   activeClass: 'is-show',
   scrollLockClass: 'is-scroll-locked',
+  scrollLock: true,
 
   closeOnEsc: true,
   closeOnOverlay: true,
   catchFocus: true,
+
+  awaitCloseAnimation: true,
 
   modalSelector: 'data-modal',
   openSelector: 'data-modal-open',

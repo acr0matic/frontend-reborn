@@ -6,12 +6,14 @@ class Modal {
    * @typedef {Object} ModalOptions
    * @property {string} [activeClass='is-show'] - CSS class for active state
    * @property {string} [scrollLockClass='is-scroll-locked'] - CSS class for scroll lock
+   * @property {boolean} [scrollLock=true] - Enable page scroll lock when modal is open
    * @property {string} [modalSelector='data-modal'] - Selector for finding modals
    * @property {boolean} [closeOnEsc=true] - Close on Escape key
    * @property {boolean} [closeOnOverlay=true] - Close on overlay click
    * @property {boolean} [catchFocus=true] - Focus management inside modal
    * @property {string} [openSelector='data-modal-open'] - Selector for open triggers
    * @property {string} [closeSelector='data-modal-close'] - Selector for close triggers
+   * @property {boolean} [awaitCloseAnimation=false] - Wait for close animation before unlock scroll
    * @property {function} [onShow] - Callback on modal open
    * @property {function} [onClose] - Callback on modal close
    * @property {function} [onCloseAll] - Callback when all modals are closed
@@ -25,12 +27,14 @@ class Modal {
     this.options = {
       activeClass: options.activeClass || 'is-show',
       scrollLockClass: options.scrollLockClass || 'is-scroll-locked',
+      scrollLock: options.scrollLock ?? true,
       modalSelector: options.modalSelector || 'data-modal',
       closeOnEsc: options.closeOnEsc ?? true,
       closeOnOverlay: options.closeOnOverlay ?? true,
       catchFocus: options.catchFocus ?? true,
-      onShow: typeof options.onShow === 'function' ? options.onShow : () => {},
-      onClose: typeof options.onClose === 'function' ? options.onClose : () => {},
+      awaitCloseAnimation: options.awaitCloseAnimation ?? false,
+      onShow: typeof options.onShow === 'function' ? options.onShow : () => { },
+      onClose: typeof options.onClose === 'function' ? options.onClose : () => { },
       onCloseAll: options.onCloseAll || undefined,
       openSelector: options.openSelector || 'data-modal-open',
       closeSelector: options.closeSelector || 'data-modal-close',
@@ -163,6 +167,21 @@ class Modal {
   }
 
   /**
+   * Helper to get modal transition duration
+   * @param {HTMLElement} modal - Modal element
+   * @returns {number} Duration in milliseconds
+   * @private
+   */
+  getTransitionDuration(modal) {
+    if (!modal) return 0;
+    const modalOverlay = modal.querySelector('.modal__overlay');
+    if (!modalOverlay) return 0;
+
+    const transitionDuration = window.getComputedStyle(modalOverlay).transitionDuration;
+    return Number.parseFloat(transitionDuration) * 1000 || 0;
+  }
+
+  /**
    * Closes a modal window
    * @param {string} [modalId] - ID of specific modal to close
    */
@@ -204,11 +223,30 @@ class Modal {
 
     // Если закрыли последнюю модалку
     if (this.openedModals.length === 0) {
-      this.unlockScroll();
+      if (this.options.awaitCloseAnimation) {
+        const durationMs = this.getTransitionDuration(modal);
 
-      // Вызываем внешний хук, если он был передан
-      if (typeof this.options.onCloseAll === 'function') {
-        this.options.onCloseAll();
+        if (durationMs > 0) {
+          setTimeout(() => {
+            this.unlockScroll();
+
+            if (typeof this.options.onCloseAll === 'function') {
+              this.options.onCloseAll();
+            }
+          }, durationMs);
+        } else {
+          this.unlockScroll();
+
+          if (typeof this.options.onCloseAll === 'function') {
+            this.options.onCloseAll();
+          }
+        }
+      } else {
+        this.unlockScroll();
+
+        if (typeof this.options.onCloseAll === 'function') {
+          this.options.onCloseAll();
+        }
       }
     }
   }
@@ -217,6 +255,10 @@ class Modal {
    * Closes all open modal windows
    */
   closeAll() {
+    if (this.openedModals.length === 0) return;
+
+    const lastModal = this.openedModals.at(-1);
+
     while (this.openedModals.length > 0) {
       const modal = this.openedModals.pop();
       modal.classList.remove(this.options.activeClass);
@@ -226,10 +268,30 @@ class Modal {
       }));
     }
 
-    this.unlockScroll();
+    if (this.options.awaitCloseAnimation && lastModal) {
+      const durationMs = this.getTransitionDuration(lastModal);
 
-    if (typeof this.options.onCloseAll === 'function') {
-      this.options.onCloseAll();
+      if (durationMs > 0) {
+        setTimeout(() => {
+          this.unlockScroll();
+
+          if (typeof this.options.onCloseAll === 'function') {
+            this.options.onCloseAll();
+          }
+        }, durationMs);
+      } else {
+        this.unlockScroll();
+
+        if (typeof this.options.onCloseAll === 'function') {
+          this.options.onCloseAll();
+        }
+      }
+    } else {
+      this.unlockScroll();
+
+      if (typeof this.options.onCloseAll === 'function') {
+        this.options.onCloseAll();
+      }
     }
   }
 
@@ -237,11 +299,7 @@ class Modal {
    * Locks page scrolling
    */
   lockScroll() {
-    // Вычисляем ширину скроллбара, чтобы контент не прыгал при его скрытии
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    }
+    if (!this.options.scrollLock) return;
     document.body.classList.add(this.options.scrollLockClass);
   }
 
@@ -249,8 +307,10 @@ class Modal {
    * Unlocks page scrolling
    */
   unlockScroll() {
-    document.body.style.paddingRight = '';
+    if (!this.options.scrollLock) return;
+
     document.body.classList.remove(this.options.scrollLockClass);
+    document.body.style.paddingRight = '';
   }
 }
 

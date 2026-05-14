@@ -54,6 +54,7 @@ const modalController = new Modal({
 |--------|------|-------------|----------|
 | `activeClass` | string | `'is-show'` | CSS класс активного состояния |
 | `scrollLockClass` | string | `'is-scroll-locked'` | CSS класс блокировки скролла |
+| `scrollLock` | boolean | `true` | Блокировка скролла страницы при открытой модалке |
 | `modalSelector` | string | `'data-modal'` | Селектор для поиска модалок |
 | `openSelector` | string | `'data-modal-open'` | Селектор триггеров открытия |
 | `closeSelector` | string | `'data-modal-close'` | Селектор триггеров закрытия |
