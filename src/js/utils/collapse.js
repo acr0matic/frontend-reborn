@@ -1,82 +1,78 @@
+/* eslint-disable unicorn/no-null */
 /* eslint-disable no-unused-expressions */
-/* https://itchief.ru/javascript/slidetoggle */
-
-const toggleEvent = new Event("dropdownToggle");
 
 export class Collapse {
-  constructor(target, duration = 350) {
+  constructor(target, duration = 350, className = 'is-open', container = null) {
     this._target = target;
     this._duration = duration;
+    this._className = className;
+    this._container = container || target.parentNode;
+    this._isTransitioning = false;
 
     this.init();
   }
 
   init() {
-    if (this._target.dataset.state === 'open') {
-      this._target.classList.add('collapsed_show');
-      this._target.parentNode.classList.add('is-open');
-    }
+    const isOpen = this._container.dataset.state === 'open';
 
-    else {
-      this._target.classList.add('collapsed');
-    }
+    this._target.style.overflow = 'hidden';
 
-    this._target.addEventListener('dropdownToggle', () => {
-      this._target.parentNode.classList.toggle('is-open');
-    });
+    if (isOpen) {
+      this._container.classList.add(this._className);
+      this._target.style.height = '';
+    } else {
+      this._container.classList.remove(this._className);
+      this._target.style.height = '0';
+    }
   }
 
   show() {
+    if (this._isTransitioning || this._container.classList.contains(this._className)) return;
+
+    this._isTransitioning = true;
     const el = this._target;
-    if (el.classList.contains('collapsing') || el.classList.contains('collapsed_show')) {
-      return;
-    }
-    el.classList.remove('collapsed');
-    const height = el.offsetHeight;
-    el.style.height = 0;
-    el.style.overflow = 'hidden';
-    el.style.transition = `all ${this._duration}ms ease`;
-    el.classList.add('collapsing');
-    el.offsetHeight;
+
+    el.style.transition = `height ${this._duration}ms ease`;
+    const height = el.scrollHeight;
+
     el.style.height = `${height}px`;
-    el.dispatchEvent(toggleEvent);
+    this._container.classList.add(this._className);
+    delete this._container.dataset.state;
 
     window.setTimeout(() => {
-      el.classList.remove('collapsing');
-      el.classList.add('collapsed');
-      el.classList.add('collapsed_show');
       el.style.height = '';
       el.style.transition = '';
-      el.style.overflow = '';
+      this._isTransitioning = false;
+      this._triggerEvent();
     }, this._duration);
   }
 
   hide() {
+    if (this._isTransitioning || !this._container.classList.contains(this._className)) return;
+
+    this._isTransitioning = true;
     const el = this._target;
-    if (el.classList.contains('collapsing') || !el.classList.contains('collapsed_show')) {
-      return;
-    }
-    el.style.height = `${el.offsetHeight}px`;
+
+    el.style.height = `${el.scrollHeight}px`;
     el.offsetHeight;
-    el.style.opacity = 0;
-    el.style.height = 0;
-    el.style.overflow = 'hidden';
-    el.style.transition = `all ${this._duration}ms ease`;
-    el.classList.remove('collapsed');
-    el.classList.remove('collapsed_show');
-    el.classList.add('collapsing');
+
+    el.style.transition = `height ${this._duration}ms ease`;
+    el.style.height = '0';
+    this._container.classList.remove(this._className);
+    delete this._container.dataset.state;
+
     window.setTimeout(() => {
-      el.classList.remove('collapsing');
-      el.classList.add('collapsed');
-      el.style.opacity = '';
-      el.style.height = '';
       el.style.transition = '';
-      el.style.overflow = '';
-      el.dispatchEvent(toggleEvent);
+      this._isTransitioning = false;
+      this._triggerEvent();
     }, this._duration);
   }
 
   toggle() {
-    this._target.classList.contains('collapsed_show') ? this.hide() : this.show();
+    this._container.classList.contains(this._className) ? this.hide() : this.show();
+  }
+
+  _triggerEvent() {
+    this._target.dispatchEvent(new CustomEvent('dropdownToggle', { bubbles: true }));
   }
 }

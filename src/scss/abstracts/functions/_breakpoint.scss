@@ -48,6 +48,6 @@ $generated-breakpoints: ();
 
 @each $name, $width in $breakpoint-container-widths {
   $offset: map.get($breakpoint-offsets, $name);
-  $offset: if($offset == null, 16, $offset);
+  $offset: if(sass($offset == null): 16; else: $offset);
   $generated-breakpoints: map.set($generated-breakpoints, $name, $width + $breakpoint-gutter + $offset);
 }

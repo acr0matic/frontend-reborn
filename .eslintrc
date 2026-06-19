@@ -33,6 +33,7 @@
     "space-before-function-paren": "off",
     "brace-style": 0,
     "unicorn/no-empty-file": "off",
-    "unicorn/prevent-abbreviations": "off"
+    "unicorn/prevent-abbreviations": "off",
+    "unicorn/empty-brace-spaces": "off"
   }
 }
