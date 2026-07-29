@@ -1,0 +1,44 @@
+.c-accordion {
+  padding-bottom: 24px;
+
+  &.is-open {
+    .c-accordion__arrow {
+      .icon {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  &__header {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+
+  }
+
+  &__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    .icon {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+      will-change: transform;
+    }
+  }
+
+  &__body {
+  }
+
+  &__content {
+    padding-top: 20px;
+  }
+}

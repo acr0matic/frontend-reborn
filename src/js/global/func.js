@@ -18,3 +18,22 @@ export const SetSize = (target, prefix, attach = false, dimension = 'height') =>
 
 export const BlockHeight = (block) => block ? block.clientHeight : undefined;
 export const MediaQuery = (breakpoint) => window.matchMedia(`${breakpoint}`).matches;
+
+/**
+ * Читает значение брейкпоинта из CSS-переменной на :root,
+ * сгенерированной из $generated-breakpoints в SCSS.
+ * @param {string} name — имя брейкпоинта (mobile, tablet, notebook, laptop, desktop)
+ * @returns {string} значение, например "528px"
+ */
+export const getBreakpointVar = (name) => {
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(`--bp-${name}`)
+    .trim();
+
+  if (!value) {
+    console.warn(`Брейкпоинт --bp-${name} не найден в CSS-переменных`);
+    return '0px';
+  }
+
+  return value;
+};

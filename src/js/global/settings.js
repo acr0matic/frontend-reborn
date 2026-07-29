@@ -1,5 +1,7 @@
 /* Все объекты конфигураций для скриптов */
 
+import { getBreakpointVar } from './func';
+
 // Повторяющиеся стили
 export const StyleClass = {
   mobile: {
@@ -17,21 +19,11 @@ export const StyleClass = {
 };
 
 // Для адаптивности скриптов
-export const breakpoint = {
-  mobile: '(min-width: 480px)',
-};
+// Значения читаются из CSS-переменных, сгенерированных в SCSS из $generated-breakpoints
+// breakpoint.* — соответствует mq($from: name) в SCSS (min-width)
+// Для проверки "мобильный" использовать !MediaQuery(breakpoint.tablet) — соответствует mq($until: tablet)
+export const breakpoint = new Proxy({}, {
+  get: (_, name) => `(min-width: ${getBreakpointVar(name)})`,
+});
 
-// Базовые настройки для MicroModal.js
-export const modalParams = {
-  awaitCloseAnimation: true,
-  disableFocus: true,
-  disableScroll: true,
 
-  onShow: modal => {
-    window.currentModal = modal.id;
-  },
-
-  onClose: () => {
-    window.currentModal = undefined;
-  }
-};

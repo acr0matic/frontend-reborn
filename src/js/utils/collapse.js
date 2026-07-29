@@ -39,6 +39,8 @@ export class Collapse {
     this._container.classList.add(this._className);
     delete this._container.dataset.state;
 
+    this._triggerEvent('dropdownToggleStart');
+
     window.setTimeout(() => {
       el.style.height = '';
       el.style.transition = '';
@@ -61,6 +63,8 @@ export class Collapse {
     this._container.classList.remove(this._className);
     delete this._container.dataset.state;
 
+    this._triggerEvent('dropdownToggleStart');
+
     window.setTimeout(() => {
       el.style.transition = '';
       this._isTransitioning = false;
@@ -72,7 +76,7 @@ export class Collapse {
     this._container.classList.contains(this._className) ? this.hide() : this.show();
   }
 
-  _triggerEvent() {
-    this._target.dispatchEvent(new CustomEvent('dropdownToggle', { bubbles: true }));
+  _triggerEvent(eventName = 'dropdownToggle') {
+    this._target.dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
   }
 }

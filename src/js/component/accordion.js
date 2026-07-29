@@ -9,9 +9,14 @@ export default class Accordion {
    * @property {number} [duration=600] - Animation duration in ms
    * @property {boolean} [single=false] - Only one accordion can be open at a time
    * @property {string} [initializedClass='is-initialized'] - CSS class for initialized accordions
-   * @property {string} [accordionSelector='.b-accordion'] - Selector for accordion elements
-   * @property {string} [headerSelector='.b-accordion__header'] - Selector for accordion headers
-   * @property {string} [bodySelector='.b-accordion__body'] - Selector for accordion bodies
+   * @property {string} [accordionSelector='.c-accordion'] - Selector for accordion elements
+   * @property {string} [headerSelector='.c-accordion__header'] - Selector for accordion headers
+   * @property {string} [bodySelector='.c-accordion__body'] - Selector for accordion bodies
+   * @property {Object} [modifier] - Modifier для изменения поведения аккордеона
+   * @property {Object} [modifier.data] - Данные для модификатора
+   * @property {Object} [modifier.data.text] - Текст для изменения при открытии/закрытии
+   * @property {string} [modifier.data.text.close] - Текст при закрытии аккордеона
+   * @property {string} [modifier.data.text.open] - Текст при открытии аккордеона
    */
 
   /**
@@ -23,9 +28,10 @@ export default class Accordion {
       duration: options.duration ?? 600,
       single: options.single ?? false,
       initializedClass: options.initializedClass || 'is-initialized',
-      accordionSelector: options.accordionSelector || '.b-accordion',
-      headerSelector: options.headerSelector || '.b-accordion__header',
-      bodySelector: options.bodySelector || '.b-accordion__body',
+      accordionSelector: options.accordionSelector || '.c-accordion',
+      headerSelector: options.headerSelector || '.c-accordion__header',
+      bodySelector: options.bodySelector || '.c-accordion__body',
+      modifier: options.modifier ?? undefined,
       ...options
     };
 
@@ -54,6 +60,24 @@ export default class Accordion {
       const collapse = new Collapse(body, this.options.duration);
       accordion.__collapse = collapse;
 
+      // Если есть модификатор с текстом, сохраняем оригинальный текст и добавляем элемент для текста
+      if (this.options.modifier?.data?.text) {
+        const textData = this.options.modifier.data.text;
+        const textElement = header.querySelector('span');
+
+        if (textElement) {
+          accordion.__originalText = textElement.textContent;
+          accordion.__textData = textData;
+
+          // Добавляем событие для изменения текста при открытии/закрытии
+          body.addEventListener('dropdownToggle', () => {
+            const isOpen = accordion.classList.contains('is-open');
+            const newText = isOpen ? textData.open : textData.close;
+            textElement.textContent = newText;
+          });
+        }
+      }
+
       header.addEventListener('click', () => {
         // Если включен режим single, закрываем другие аккордеоны
         if (this.options.single) {
@@ -61,6 +85,15 @@ export default class Accordion {
           for (const otherAccordion of allAccordions) {
             if (otherAccordion !== accordion && otherAccordion.__collapse) {
               otherAccordion.__collapse.close();
+              // Восстанавливаем текст для закрытых аккордеонов с анимацией
+              if (otherAccordion.__textData) {
+                const otherHeader = otherAccordion.querySelector(this.options.headerSelector);
+                const otherTextElement = otherHeader?.querySelector('span');
+
+                if (otherTextElement) {
+                  otherTextElement.textContent = otherAccordion.__textData.close;
+                }
+              }
             }
           }
         }

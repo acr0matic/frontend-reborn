@@ -18,6 +18,24 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
+const cacheDir = path.resolve(__dirname, 'node_modules', '.cache');
+if (!fs.existsSync(cacheDir)) {
+  fs.mkdirSync(cacheDir, { recursive: true });
+}
+
+const postHtmlCustomLoader = path.resolve(cacheDir, 'posthtml-watch-loader.js');
+fs.writeFileSync(postHtmlCustomLoader, `
+  const path = require('path');
+  module.exports = function(content) {
+    const regex = /<include[^>]+src="([^"]+)"/gi;
+    let match;
+    while ((match = regex.exec(content)) !== null) {
+      this.addDependency(path.resolve(this.rootContext, 'src', match[1]));
+    }
+    return content;
+  };
+`);
+
 const includeRoot = path.resolve(__dirname, 'src');
 const pages = fs
   .readdirSync(includeRoot)
@@ -37,7 +55,16 @@ module.exports = (env, argv) => {
 
   return {
     entry: './src/js/app.js',
-    stats: 'errors-warnings',
+    stats: {
+      preset: 'errors-only',
+      children: false, // Убивает спам от дочерних сборок (html-webpack-plugin)
+      errorStack: false,
+      moduleTrace: false,
+    },
+
+    infrastructureLogging: {
+      level: 'warn',
+    },
 
     mode: isProduction ? 'production' : 'development',
     devtool: 'source-map',
@@ -79,8 +106,12 @@ module.exports = (env, argv) => {
               loader: 'posthtml-loader',
               options: {
                 plugins: [
-                  postHtmlInclude({ root: includeRoot }),
+                  postHtmlInclude({
+                    root: includeRoot,
+                    posthtmlExpressionsOptions: { strictMode: false },
+                  }),
                   expressions({
+                    strictMode: false,
                     locals: {
                       buildDate: buildDateValue,
                     },
@@ -100,6 +131,9 @@ module.exports = (env, argv) => {
                 ],
               },
             },
+            {
+              loader: postHtmlCustomLoader,
+            }
           ],
         },
 
@@ -118,7 +152,7 @@ module.exports = (env, argv) => {
         {
           test: /\.css$/i,
           use: [
-            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+            MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
@@ -139,7 +173,7 @@ module.exports = (env, argv) => {
           test: /\.s[ac]ss$/i,
           exclude: /old/,
           use: [
-            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+            MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
@@ -223,6 +257,12 @@ module.exports = (env, argv) => {
       port: 'auto',
       static: path.resolve(__dirname, 'dist'),
       watchFiles: ['src/**/*.html'],
+      client: {
+        overlay: {
+          errors: true,
+          warnings: false,
+        },
+      }
     },
 
     optimization: {
