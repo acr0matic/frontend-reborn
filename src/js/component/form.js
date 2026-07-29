@@ -52,10 +52,17 @@ export function updatePhoneMask(phoneInput, countryCode) {
   maskController.updateOptions({ mask: maskPattern });
 }
 
-export class Form {
-  constructor(form) {
+class Form {
+  constructor(form, options = {}) {
     if (!form) return;
     this.form = form;
+    this.options = {
+      onSubmit: () => {},
+      onReset: () => {},
+      onValidate: () => {},
+      ...options,
+    };
+
     this.submit = form.querySelector('button[type=submit]');
     this.fields = form.querySelectorAll('input, select, textarea');
     this.phone = form.querySelector('input[type=tel]');
@@ -74,16 +81,22 @@ export class Form {
 
     if (this.country) this.initCountrySelect();
 
+    this.form.addEventListener('submit', this.onSubmit);
     this.form.addEventListener('click', this.onClick);
   }
+
+  onSubmit = (event) => {
+    this.options.onSubmit(this.form, event);
+  };
 
   onClick = (event) => {
     const button = event.target.closest('.button');
     if (!button) return;
 
     const action = button.dataset.action;
-    if (action && typeof this[action] === 'function') {
-      this[action]();
+    if (action === 'reset' && typeof this.reset === 'function') {
+      event.preventDefault();
+      this.reset();
     }
   };
 
@@ -119,6 +132,8 @@ export class Form {
 
     const allChecked = this.privacy.every((item) => item.checked);
     this.submit.disabled = !allChecked;
+
+    this.options.onValidate(this.form, allChecked);
   }
 
   initCountrySelect() {
@@ -141,11 +156,13 @@ export class Form {
     }
 
     this.updateSubmitState();
+    this.options.onReset(this.form);
   }
 
   destroy() {
     if (!this.form) return;
 
+    this.form.removeEventListener('submit', this.onSubmit);
     this.form.removeEventListener('click', this.onClick);
     this.form.removeEventListener('change', this.onPrivacyChange);
 
@@ -167,10 +184,23 @@ export class Form {
   }
 }
 
+/**
+ * @typedef {Object} FormsOptions
+ * @property {string} [selector='.form-custom'] - Селектор форм
+ * @property {(form: HTMLFormElement, event: Event) => void} [onSubmit] - Коллбэк при сабмите
+ * @property {(form: HTMLFormElement) => void} [onReset] - Коллбэк при сбросе
+ * @property {(form: HTMLFormElement, isValid: boolean) => void} [onValidate] - Коллбэк при изменении валидации
+ */
 export default class Forms {
   constructor(options = {}) {
+    /**
+     * @type {FormsOptions}
+     */
     this.options = {
       selector: '.form-custom',
+      onSubmit: () => {},
+      onReset: () => {},
+      onValidate: () => {},
       ...options,
     };
     this.instances = [];
@@ -190,10 +220,30 @@ export default class Forms {
 
     const forms = document.querySelectorAll(this.options.selector);
     const newForms = [...forms].filter((form) => !this.instances.some((instance) => instance.form === form));
-    const newInstances = newForms.map((form) => new Form(form));
+    const newInstances = newForms.map((form) => new Form(form, this.options));
 
     this.instances = [...this.instances, ...newInstances];
     return newInstances;
+  }
+
+  /**
+   * Возвращает экземпляр Form по DOM-элементу
+   * @param {HTMLFormElement| string} form - Элемент формы или селектор
+   * @returns {Form | undefined}
+   */
+  get(form) {
+    const element = typeof form === 'string' ? document.querySelector(form) : form;
+    return this.instances.find((instance) => instance.form === element);
+  }
+
+  /**
+   * Перебирает все формы
+   * @param {(instance: Form) => void} callback
+   */
+  forEach(callback) {
+    for (const instance of this.instances) {
+      callback(instance);
+    }
   }
 
   destroy() {

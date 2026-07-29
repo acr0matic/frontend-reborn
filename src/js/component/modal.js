@@ -12,7 +12,9 @@ export class Modal {
    * @property {boolean} [closeOnOverlay=true] - Закрывать по клику на оверлей
    * @property {boolean} [catchFocus=true] - Удерживать фокус внутри открытой модалки
    * @property {boolean} [awaitCloseAnimation=false] - Ждать ли окончания CSS-перехода перед разблокировкой скролла
+   * @property {(modal: HTMLElement) => void} [onBeforeOpen=() => {}] - Коллбэк перед открытием
    * @property {(modal: HTMLElement) => void} [onShow=() => {}] - Коллбэк при открытии
+   * @property {(modal: HTMLElement) => void} [onBeforeClose=() => {}] - Коллбэк перед закрытием
    * @property {(modal: HTMLElement) => void} [onClose=() => {}] - Коллбэк при закрытии
    * @property {() => void} [onCloseAll=() => {}] - Коллбэк при закрытии всех модалок
    * @property {string} [openSelector='data-modal-open'] - Data-атрибут триггера открытия
@@ -31,7 +33,9 @@ export class Modal {
       closeOnOverlay: true,
       catchFocus: true,
       awaitCloseAnimation: false,
+      onBeforeOpen: () => { },
       onShow: () => { },
+      onBeforeClose: () => { },
       onClose: () => { },
       onCloseAll: () => { },
       openSelector: 'data-modal-open',
@@ -132,6 +136,8 @@ export class Modal {
       return;
     }
 
+    this.options.onBeforeOpen(modal);
+
     // Отменяем отложенную разблокировку скролла, если открываем новую модалку
     if (this.unlockTimeout) {
       clearTimeout(this.unlockTimeout);
@@ -207,6 +213,7 @@ export class Modal {
       modal = this.openedModals.pop();
     }
 
+    this.options.onBeforeClose(modal);
     modal.classList.remove(this.options.activeClass);
 
     if (this.options.catchFocus && modal.previousActiveElement?.focus) {

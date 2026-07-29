@@ -1,52 +1,111 @@
 import { Swiper } from "swiper";
-import { Navigation, Thumbs, Pagination, EffectFade } from "swiper/modules";
+import { Navigation, Thumbs, EffectFade } from "swiper/modules";
 import { MediaQuery } from '../global/func';
 import { breakpoint } from '../global/settings';
 
-class Gallery {
-  constructor(gallery) {
-    this.el = gallery;
-    this.mainEl = gallery.querySelector('.b-gallery__slider .swiper');
-
-    if (!this.mainEl) return;
-
-    this.isVerticalGallery = gallery.classList.contains('b-gallery--vertical');
-    this.thumbEl = gallery.querySelector('.b-gallery__thumb .swiper');
-    this.previewSwiper = undefined;
-    this.mainSlider = undefined;
-
+export default class Galleries {
+  constructor(options = {}) {
+    this.options = {
+      selector: '.b-gallery',
+      ...options,
+    };
+    this.instances = new Map();
     this.init();
   }
 
   init() {
-    this.previewSwiper = this.createPreview();
-    this.createMainSlider();
+    this.update();
+  }
 
-    if (this.isVerticalGallery && this.thumbEl) {
-      this.isCurrentlyVertical = MediaQuery(breakpoint.tablet);
-      window.addEventListener('resize', this.onResize);
+  update() {
+    for (const [el, instance] of this.instances) {
+      if (!document.contains(el)) {
+        this.destroyInstance(el, instance);
+      }
+    }
+
+    const galleries = document.querySelectorAll(this.options.selector);
+    for (const gallery of galleries) {
+      if (this.instances.has(gallery)) continue;
+      const instance = this.createInstance(gallery);
+      if (instance) {
+        this.instances.set(gallery, instance);
+      }
     }
   }
 
-  createPreview() {
-    if (!this.thumbEl) return;
+  createInstance(gallery) {
+    const mainEl = gallery.querySelector('.b-gallery__slider .swiper');
+    if (!mainEl) return;
 
-    const isVertical = this.isVerticalGallery && MediaQuery(breakpoint.tablet);
+    const isVerticalGallery = gallery.classList.contains('b-gallery--vertical');
+    const thumbEl = gallery.querySelector('.b-gallery__thumb .swiper');
 
-    const swiperInstance = new Swiper(this.thumbEl, {
+    const instance = {
+      el: gallery,
+      mainEl,
+      thumbEl,
+      isVerticalGallery,
+      isCurrentlyVertical: undefined,
+      previewSwiper: undefined,
+      mainSlider: undefined,
+    };
+
+    this.initGallery(instance);
+    return instance;
+  }
+
+  initGallery(instance) {
+    instance.previewSwiper = this.createPreview(instance);
+    instance.mainSlider = this.createMainSlider(instance);
+
+    if (instance.isVerticalGallery && instance.thumbEl) {
+      instance.isCurrentlyVertical = MediaQuery(breakpoint.tablet);
+      instance.onResize = () => this.onResize(instance);
+      window.addEventListener('resize', instance.onResize);
+    }
+  }
+
+  setThumbSize(instance, isVertical) {
+    if (!instance.thumbEl || !instance.mainEl) return;
+
+    if (!isVertical) {
+      instance.el.style.removeProperty('--b-thumb-height');
+      return;
+    }
+
+    const viewport = instance.mainEl.closest('.b-gallery__viewport');
+    if (!viewport) return;
+
+    const height = viewport.clientHeight || Math.round(viewport.offsetWidth * 3 / 4);
+
+    if (height > 0) {
+      instance.el.style.setProperty('--b-thumb-height', `${height}px`);
+    }
+  }
+
+  createPreview(instance) {
+    if (!instance.thumbEl) return;
+
+    const isVertical = instance.isVerticalGallery && MediaQuery(breakpoint.tablet);
+
+    this.setThumbSize(instance, isVertical);
+
+    const swiperInstance = new Swiper(instance.thumbEl, {
       modules: isVertical ? [Navigation] : [],
       direction: isVertical ? 'vertical' : 'horizontal',
-      slidesPerView: isVertical ? 5 : 4.5,
+      slidesPerView: isVertical ? 'auto' : 4.5,
       spaceBetween: 8,
       slideToClickedSlide: true,
+      centerInsufficientSlides: isVertical,
       watchSlidesProgress: true,
       navigation: isVertical
         ? {
-            prevEl: this.el.querySelector('.b-gallery__thumb .swiper-button-prev'),
-            nextEl: this.el.querySelector('.b-gallery__thumb .swiper-button-next'),
+            prevEl: instance.el.querySelector('.b-gallery__thumb .swiper-button-prev'),
+            nextEl: instance.el.querySelector('.b-gallery__thumb .swiper-button-next'),
           }
         : undefined,
-      breakpoints: this.isVerticalGallery
+      breakpoints: instance.isVerticalGallery
         ? undefined
         : {
             800: { slidesPerView: 3 },
@@ -58,8 +117,19 @@ class Gallery {
     /* Автоматическая прокрутка превью при клике на крайний видимый слайд */
     if (isVertical) {
       swiperInstance.on('tap', () => {
-        const { clickedIndex, activeIndex, clickedSlide, slides, params } = swiperInstance;
-        const slidesPerView = Math.floor(params.slidesPerView);
+        const { clickedIndex, activeIndex, clickedSlide, slides, params, height } = swiperInstance;
+        let slidesPerView = params.slidesPerView;
+
+        if (slidesPerView === 'auto') {
+          const slideHeight = slides[0]?.offsetHeight || 0;
+          const spaceBetween = params.spaceBetween || 0;
+
+          slidesPerView = slideHeight > 0
+            ? Math.floor((height + spaceBetween) / (slideHeight + spaceBetween))
+            : 1;
+        } else {
+          slidesPerView = Math.floor(slidesPerView);
+        }
 
         if (
           clickedIndex === undefined ||
@@ -81,9 +151,9 @@ class Gallery {
     return swiperInstance;
   }
 
-  createMainSlider() {
-    this.mainSlider = new Swiper(this.mainEl, {
-      modules: [Navigation, Thumbs, Pagination, EffectFade],
+  createMainSlider(instance) {
+    const mainSlider = new Swiper(instance.mainEl, {
+      modules: [Thumbs, EffectFade],
       slidesPerView: 1,
       spaceBetween: 32,
       allowTouchMove: false,
@@ -91,92 +161,69 @@ class Gallery {
       fadeEffect: {
         crossFade: true,
       },
-      navigation: {
-        prevEl: this.el.querySelector('.b-gallery__viewport .swiper-button-prev'),
-        nextEl: this.el.querySelector('.b-gallery__viewport .swiper-button-next'),
-      },
       thumbs: {
-        swiper: this.previewSwiper,
-      },
-      pagination: {
-        el: this.el.querySelector('.swiper-pagination'),
-        clickable: true,
+        swiper: instance.previewSwiper,
       },
     });
 
     /* Остановка видео только на предыдущем активном слайде */
-    this.mainSlider.on('slideChangeTransitionStart', () => {
-      const prevSlide = this.mainSlider.slides[this.mainSlider.previousIndex];
+    mainSlider.on('slideChangeTransitionStart', () => {
+      const prevSlide = mainSlider.slides[mainSlider.previousIndex];
       if (!prevSlide) return;
 
       const videos = prevSlide.querySelectorAll('video');
       for (const video of videos) video.pause();
     });
+
+    return mainSlider;
   }
 
-  onResize = () => {
+  onResize(instance) {
     const isVertical = MediaQuery(breakpoint.tablet);
-    if (isVertical === this.isCurrentlyVertical) return;
 
-    this.isCurrentlyVertical = isVertical;
+    this.setThumbSize(instance, isVertical);
 
-    if (this.previewSwiper && !this.previewSwiper.destroyed) {
-      this.previewSwiper.destroy(true, true);
+    if (isVertical === instance.isCurrentlyVertical) {
+      if (instance.previewSwiper && !instance.previewSwiper.destroyed) {
+        instance.previewSwiper.update();
+      }
+      return;
     }
 
-    this.previewSwiper = this.createPreview();
+    instance.isCurrentlyVertical = isVertical;
 
-    if (this.mainSlider.params.thumbs) {
-      this.mainSlider.thumbs.swiper = this.previewSwiper;
-      this.mainSlider.thumbs.init();
-      this.mainSlider.thumbs.update(true);
-    }
-  };
-
-  destroy() {
-    window.removeEventListener('resize', this.onResize);
-
-    if (this.previewSwiper && !this.previewSwiper.destroyed) {
-      this.previewSwiper.destroy(true, true);
+    if (instance.previewSwiper && !instance.previewSwiper.destroyed) {
+      instance.previewSwiper.destroy(true, true);
     }
 
-    if (this.mainSlider && !this.mainSlider.destroyed) {
-      this.mainSlider.destroy(true, true);
+    instance.previewSwiper = this.createPreview(instance);
+
+    if (instance.mainSlider.params.thumbs) {
+      instance.mainSlider.thumbs.swiper = instance.previewSwiper;
+      instance.mainSlider.thumbs.init();
+      instance.mainSlider.thumbs.update(true);
     }
-
-    this.el = undefined;
-    this.mainEl = undefined;
-    this.thumbEl = undefined;
-  }
-}
-
-export default class Galleries {
-  constructor(options = {}) {
-    this.options = {
-      selector: '.b-gallery',
-      ...options,
-    };
-    this.instances = [];
-    this.init();
   }
 
-  init() {
-    this.update();
-  }
+  destroyInstance(el, instance) {
+    if (instance.onResize) {
+      window.removeEventListener('resize', instance.onResize);
+    }
 
-  update() {
-    const galleries = document.querySelectorAll(this.options.selector);
-    const newGalleries = [...galleries].filter((el) => !this.instances.some((instance) => instance.el === el));
-    const newInstances = newGalleries.map((el) => new Gallery(el)).filter(Boolean);
+    if (instance.previewSwiper && !instance.previewSwiper.destroyed) {
+      instance.previewSwiper.destroy(true, true);
+    }
 
-    this.instances = [...this.instances, ...newInstances];
-    return newInstances;
+    if (instance.mainSlider && !instance.mainSlider.destroyed) {
+      instance.mainSlider.destroy(true, true);
+    }
+
+    this.instances.delete(el);
   }
 
   destroy() {
-    for (const instance of this.instances) {
-      instance.destroy();
+    for (const [el, instance] of this.instances) {
+      this.destroyInstance(el, instance);
     }
-    this.instances = [];
   }
 }

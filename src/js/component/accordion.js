@@ -17,6 +17,10 @@ export default class Accordion {
    * @property {Object} [modifier.data.text] - Текст для изменения при открытии/закрытии
    * @property {string} [modifier.data.text.close] - Текст при закрытии аккордеона
    * @property {string} [modifier.data.text.open] - Текст при открытии аккордеона
+   * @property {(accordion: HTMLElement, body: HTMLElement) => void} [onBeforeOpen] - Перед открытием
+   * @property {(accordion: HTMLElement, body: HTMLElement) => void} [onOpen] - После открытия
+   * @property {(accordion: HTMLElement, body: HTMLElement) => void} [onBeforeClose] - Перед закрытием
+   * @property {(accordion: HTMLElement, body: HTMLElement) => void} [onClose] - После закрытия
    */
 
   /**
@@ -32,9 +36,14 @@ export default class Accordion {
       headerSelector: options.headerSelector || '.c-accordion__header',
       bodySelector: options.bodySelector || '.c-accordion__body',
       modifier: options.modifier ?? undefined,
+      onBeforeOpen: () => {},
+      onOpen: () => {},
+      onBeforeClose: () => {},
+      onClose: () => {},
       ...options
     };
 
+    this.instances = [];
     this.init();
   }
 
@@ -49,6 +58,12 @@ export default class Accordion {
    * Finds and initializes all uninitialized accordions
    */
   update() {
+    this.instances = this.instances.filter((instance) => {
+      if (document.contains(instance.el)) return true;
+      this.destroyInstance(instance);
+      return false;
+    });
+
     const accordions = document.querySelectorAll(`${this.options.accordionSelector}:not(.${this.options.initializedClass})`);
 
     for (const accordion of accordions) {
@@ -60,7 +75,16 @@ export default class Accordion {
       const collapse = new Collapse(body, this.options.duration);
       accordion.__collapse = collapse;
 
-      // Если есть модификатор с текстом, сохраняем оригинальный текст и добавляем элемент для текста
+      const instance = {
+        el: accordion,
+        header,
+        body,
+        collapse,
+        textElement: undefined,
+        textData: undefined,
+      };
+
+      // Если есть модификатор с текстом, сохраняем оригинальный текст
       if (this.options.modifier?.data?.text) {
         const textData = this.options.modifier.data.text;
         const textElement = header.querySelector('span');
@@ -68,41 +92,82 @@ export default class Accordion {
         if (textElement) {
           accordion.__originalText = textElement.textContent;
           accordion.__textData = textData;
-
-          // Добавляем событие для изменения текста при открытии/закрытии
-          body.addEventListener('dropdownToggle', () => {
-            const isOpen = accordion.classList.contains('is-open');
-            const newText = isOpen ? textData.open : textData.close;
-            textElement.textContent = newText;
-          });
+          instance.textElement = textElement;
+          instance.textData = textData;
         }
       }
 
-      header.addEventListener('click', () => {
-        // Если включен режим single, закрываем другие аккордеоны
-        if (this.options.single) {
-          const allAccordions = document.querySelectorAll(this.options.accordionSelector);
-          for (const otherAccordion of allAccordions) {
-            if (otherAccordion !== accordion && otherAccordion.__collapse) {
-              otherAccordion.__collapse.close();
-              // Восстанавливаем текст для закрытых аккордеонов с анимацией
-              if (otherAccordion.__textData) {
-                const otherHeader = otherAccordion.querySelector(this.options.headerSelector);
-                const otherTextElement = otherHeader?.querySelector('span');
+      instance.headerClickHandler = this.createHeaderClickHandler(instance);
+      instance.dropdownStartHandler = this.createDropdownStartHandler(instance);
+      instance.dropdownEndHandler = this.createDropdownEndHandler(instance);
 
-                if (otherTextElement) {
-                  otherTextElement.textContent = otherAccordion.__textData.close;
-                }
-              }
-            }
-          }
-        }
-
-        collapse.toggle();
-      });
+      header.addEventListener('click', instance.headerClickHandler);
+      body.addEventListener('dropdownToggleStart', instance.dropdownStartHandler);
+      body.addEventListener('dropdownToggle', instance.dropdownEndHandler);
 
       accordion.classList.add(this.options.initializedClass);
+      this.instances.push(instance);
     }
+  }
+
+  createHeaderClickHandler(instance) {
+    return () => {
+      if (this.options.single) {
+        this.closeAllExcept(instance.el);
+      }
+
+      instance.collapse.toggle();
+    };
+  }
+
+  closeAllExcept(excludedEl) {
+    const allAccordions = document.querySelectorAll(this.options.accordionSelector);
+    for (const otherAccordion of allAccordions) {
+      if (otherAccordion !== excludedEl && otherAccordion.__collapse) {
+        otherAccordion.__collapse.close();
+      }
+    }
+  }
+
+  createDropdownStartHandler(instance) {
+    return () => {
+      const isOpen = instance.el.classList.contains('is-open');
+
+      if (isOpen) {
+        this.options.onBeforeOpen(instance.el, instance.body);
+      } else {
+        this.options.onBeforeClose(instance.el, instance.body);
+      }
+    };
+  }
+
+  createDropdownEndHandler(instance) {
+    return () => {
+      const isOpen = instance.el.classList.contains('is-open');
+
+      if (instance.textElement && instance.textData) {
+        instance.textElement.textContent = isOpen ? instance.textData.open : instance.textData.close;
+      }
+
+      if (isOpen) {
+        this.options.onOpen(instance.el, instance.body);
+      } else {
+        this.options.onClose(instance.el, instance.body);
+      }
+    };
+  }
+
+  destroyInstance(instance) {
+    instance.header.removeEventListener('click', instance.headerClickHandler);
+    instance.body.removeEventListener('dropdownToggleStart', instance.dropdownStartHandler);
+    instance.body.removeEventListener('dropdownToggle', instance.dropdownEndHandler);
+    instance.el.classList.remove(this.options.initializedClass);
+    delete instance.el.__collapse;
+  }
+
+  getInstance(accordion) {
+    const element = typeof accordion === 'string' ? document.querySelector(accordion) : accordion;
+    return this.instances.find((instance) => instance.el === element);
   }
 
   /**
@@ -110,9 +175,12 @@ export default class Accordion {
    * @param {HTMLElement|string} accordion - Accordion element or selector
    */
   open(accordion) {
-    const element = typeof accordion === 'string' ? document.querySelector(accordion) : accordion;
-    if (element && element.__collapse) {
-      element.__collapse.open();
+    const instance = this.getInstance(accordion);
+    if (instance) {
+      if (this.options.single) {
+        this.closeAllExcept(instance.el);
+      }
+      instance.collapse.open();
     }
   }
 
@@ -121,9 +189,9 @@ export default class Accordion {
    * @param {HTMLElement|string} accordion - Accordion element or selector
    */
   close(accordion) {
-    const element = typeof accordion === 'string' ? document.querySelector(accordion) : accordion;
-    if (element && element.__collapse) {
-      element.__collapse.close();
+    const instance = this.getInstance(accordion);
+    if (instance) {
+      instance.collapse.close();
     }
   }
 
@@ -132,9 +200,12 @@ export default class Accordion {
    * @param {HTMLElement|string} accordion - Accordion element or selector
    */
   toggle(accordion) {
-    const element = typeof accordion === 'string' ? document.querySelector(accordion) : accordion;
-    if (element && element.__collapse) {
-      element.__collapse.toggle();
+    const instance = this.getInstance(accordion);
+    if (instance) {
+      if (this.options.single) {
+        this.closeAllExcept(instance.el);
+      }
+      instance.collapse.toggle();
     }
   }
 
@@ -142,11 +213,18 @@ export default class Accordion {
    * Closes all accordions
    */
   closeAll() {
-    const accordions = document.querySelectorAll(this.options.accordionSelector);
-    for (const accordion of accordions) {
-      if (accordion.__collapse) {
-        accordion.__collapse.close();
-      }
+    for (const instance of this.instances) {
+      instance.collapse.close();
     }
+  }
+
+  /**
+   * Destroys all accordions
+   */
+  destroy() {
+    for (const instance of this.instances) {
+      this.destroyInstance(instance);
+    }
+    this.instances = [];
   }
 }
