@@ -3,7 +3,7 @@ import { Navigation, Thumbs, EffectFade } from "swiper/modules";
 import { MediaQuery } from '../global/func';
 import { breakpoint } from '../global/settings';
 
-export default class Galleries {
+export default class Gallery {
   constructor(options = {}) {
     this.options = {
       selector: '.b-gallery',
@@ -56,11 +56,15 @@ export default class Galleries {
   }
 
   initGallery(instance) {
+    if (instance.isVerticalGallery && instance.thumbEl) {
+      instance.isCurrentlyVertical = MediaQuery(breakpoint.tablet);
+      this.setThumbSize(instance, instance.isCurrentlyVertical);
+    }
+
     instance.previewSwiper = this.createPreview(instance);
     instance.mainSlider = this.createMainSlider(instance);
 
     if (instance.isVerticalGallery && instance.thumbEl) {
-      instance.isCurrentlyVertical = MediaQuery(breakpoint.tablet);
       instance.onResize = () => this.onResize(instance);
       window.addEventListener('resize', instance.onResize);
     }
@@ -89,15 +93,13 @@ export default class Galleries {
 
     const isVertical = instance.isVerticalGallery && MediaQuery(breakpoint.tablet);
 
-    this.setThumbSize(instance, isVertical);
-
     const swiperInstance = new Swiper(instance.thumbEl, {
       modules: isVertical ? [Navigation] : [],
       direction: isVertical ? 'vertical' : 'horizontal',
       slidesPerView: isVertical ? 'auto' : 4.5,
       spaceBetween: 8,
       slideToClickedSlide: true,
-      centerInsufficientSlides: isVertical,
+      centerInsufficientSlides: false,
       watchSlidesProgress: true,
       navigation: isVertical
         ? {

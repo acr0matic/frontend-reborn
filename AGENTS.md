@@ -12,7 +12,7 @@
 
 - `src/js/app.js` — точка входа. Подключаёт стили, `init.js` и лейауты.
 - `src/js/global/init.js` — центр инициализации. Создаёт контроллеры в `DOMContentLoaded` и публикует их в `window.App`.
-- `src/js/component/` — переиспользуемые UI-компоненты-контроллеры (`Modal`, `Submenu`, `Accordion`, `Forms`, `NumberInputs`, `Galleries`, `Tabs`).
+- `src/js/component/` — переиспользуемые UI-компоненты-контроллеры (`Modal`, `Submenu`, `Accordion`, `Form`, `NumberInput`, `Gallery`, `Tab`).
 - `src/js/utils/` — вспомогательные классы и функции (`Collapse`, `ScrollTop`, `video-optimization`).
 - `src/js/layout/` — логика страниц и глобальных участков (`header`, `menu`).
 - `src/js/libs/` — сторонние библиотеки, не из npm.
@@ -49,10 +49,10 @@ window.App.accordion.update(); // для динамически добавлен
 
 window.App.submenu.update();
 
-window.App.forms.update();     // для динамически добавленных форм
-window.App.forms.get('#form-id'); // получить конкретную форму
+window.App.form.update();     // для динамически добавленных форм
+window.App.form.get('#form-id'); // получить конкретную форму
 
-window.App.numberInputs.update(); // для динамически добавленных number-полей
+window.App.numberInput.update(); // для динамически добавленных number-полей
 ```
 
 ## Callback'и для кастомизации
@@ -103,10 +103,10 @@ new Submenu({
 });
 ```
 
-### Forms
+### Form
 
 ```js
-new Forms({
+new Form({
   onSubmit: (form, event) => { /* при сабмите */ },
   onReset: (form) => { /* при сбросе */ },
   onValidate: (form, isValid) => { /* при изменении состояния privacy */ },
@@ -115,7 +115,7 @@ new Forms({
 
 - Кнопка с `data-action="reset"` вызывает сброс формы.
 - Формы ищутся по классу `.form-custom`.
-- `Form` — внутренний класс, напрямую не экспортируется. Доступ к конкретной форме — через `window.App.forms.get('#form-id')`.
+- Доступ к конкретной форме — через `window.App.form.get('#form-id')`.
 
 ### Number inputs
 
@@ -133,21 +133,21 @@ new Forms({
 
 ## Подключение галереи и табов
 
-Файлы `component/gallery.js` и `component/tabs.js` используют `swiper`. Перед раскомментированием их импортов в `app.js` установите зависимость:
+Файлы `component/gallery.js` и `component/tabs.js` используют `swiper`. Перед раскомментированием их импортов установите зависимость:
 
 ```bash
 yarn add swiper
 ```
 
-После установки импортируйте и создайте экземпляры:
+После установки импортируйте в `init.js` и создайте экземпляры:
 
 ```js
-import Galleries from './component/gallery';
-import Tabs from './component/tabs';
+import Gallery from '../component/gallery';
+import Tab from '../component/tabs';
 
-// в init.js или DOMContentLoaded:
-window.App.galleries = new Galleries();
-window.App.tabs = new Tabs();
+// в DOMContentLoaded:
+window.App.gallery = new Gallery();
+window.App.tab = new Tab();
 ```
 
 ## Стилистика и линтеры

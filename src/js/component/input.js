@@ -1,4 +1,4 @@
-export default class NumberInputs {
+export default class NumberInput {
   constructor(options = {}) {
     this.options = {
       selector: options.selector || 'input[type="number"]',

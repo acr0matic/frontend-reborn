@@ -9,7 +9,3 @@ import './global/init';
 
 import './layout/header';
 import './layout/menu';
-
-// import './component/gallery';
-// import './component/select';
-// import './component/tabs';

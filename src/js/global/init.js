@@ -1,13 +1,15 @@
 /* Прописываются все инициализации и первичные параметры для скриптов */
 
 // import ScrollTop from '../utils/scroll-top';
+// import Gallery from '../component/gallery';
+// import Tab from '../component/tabs';
 
 import LazyLoad from 'vanilla-lazyload';
 import Modal from '../component/modal';
 import Submenu from '../component/submenu';
 import Accordion from '../component/accordion';
-import Forms from '../component/form';
-import NumberInputs from '../component/input';
+import Form from '../component/form';
+import NumberInput from '../component/input';
 
 import { PlayVideoInViewport } from '../utils/video-optimization';
 
@@ -59,12 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
     duration: 600
   });
 
-  window.App.forms = new Forms();
-  window.App.numberInputs = new NumberInputs();
+  window.App.form = new Form();
+  window.App.numberInput = new NumberInput();
+
+  // window.App.gallery = new Gallery();
+  // window.App.tab = new Tab();
+  // window.App.scrollTop = new ScrollTop();
 
   PlayVideoInViewport();
-
-  // window.App.scrollTop = new ScrollTop();
 });
 
 /* --------- */

@@ -52,149 +52,35 @@ export function updatePhoneMask(phoneInput, countryCode) {
   maskController.updateOptions({ mask: maskPattern });
 }
 
-class Form {
-  constructor(form, options = {}) {
-    if (!form) return;
-    this.form = form;
-    this.options = {
-      onSubmit: () => {},
-      onReset: () => {},
-      onValidate: () => {},
-      ...options,
-    };
-
-    this.submit = form.querySelector('button[type=submit]');
-    this.fields = form.querySelectorAll('input, select, textarea');
-    this.phone = form.querySelector('input[type=tel]');
-    this.email = form.querySelector('input[type=email]');
-    this.name = form.querySelector('input[name=user_name]');
-    this.privacy = [...form.querySelectorAll('[data-privacy]')];
-    this.country = form.querySelector('select[data-target="country"]');
-
-    this.init();
-  }
-
-  init() {
-    this.initNameMask();
-    this.initPhone();
-    this.initPrivacyListener();
-
-    if (this.country) this.initCountrySelect();
-
-    this.form.addEventListener('submit', this.onSubmit);
-    this.form.addEventListener('click', this.onClick);
-  }
-
-  onSubmit = (event) => {
-    this.options.onSubmit(this.form, event);
-  };
-
-  onClick = (event) => {
-    const button = event.target.closest('.button');
-    if (!button) return;
-
-    const action = button.dataset.action;
-    if (action === 'reset' && typeof this.reset === 'function') {
-      event.preventDefault();
-      this.reset();
-    }
-  };
-
-  initNameMask() {
-    if (!this.name) return;
-
-    this.nameMask = IMask(this.name, {
-      mask: /^[\sA-Za-zЁА-яё-]+$/,
-    });
-  }
-
-  initPhone() {
-    if (!this.phone) return;
-    const countryCode = this.phone.dataset.countryCode || (this.country?.value) || '7';
-    initPhoneMask(this.phone, countryCode);
-  }
-
-  initPrivacyListener() {
-    if (this.privacy.length === 0 || !this.submit) return;
-
-    this.updateSubmitState();
-    this.form.addEventListener('change', this.onPrivacyChange);
-  }
-
-  onPrivacyChange = (event) => {
-    if (Object.hasOwn(event.target.dataset, 'privacy')) {
-      this.updateSubmitState();
-    }
-  };
-
-  updateSubmitState() {
-    if (!this.submit) return;
-
-    const allChecked = this.privacy.every((item) => item.checked);
-    this.submit.disabled = !allChecked;
-
-    this.options.onValidate(this.form, allChecked);
-  }
-
-  initCountrySelect() {
-    this.country.addEventListener('change', this.onCountryChange);
-  }
-
-  onCountryChange = () => {
-    if (this.phone) {
-      updatePhoneMask(this.phone, this.country.value);
-    }
-  };
-
-  reset() {
-    this.form.reset();
-
-    if (this.phone && phoneMasks.has(this.phone)) {
-      const mask = phoneMasks.get(this.phone);
-      mask.value = '';
-      mask.updateValue();
-    }
-
-    this.updateSubmitState();
-    this.options.onReset(this.form);
-  }
-
-  destroy() {
-    if (!this.form) return;
-
-    this.form.removeEventListener('submit', this.onSubmit);
-    this.form.removeEventListener('click', this.onClick);
-    this.form.removeEventListener('change', this.onPrivacyChange);
-
-    if (this.country) {
-      this.country.removeEventListener('change', this.onCountryChange);
-    }
-
-    if (this.phone && phoneMasks.has(this.phone)) {
-      const mask = phoneMasks.get(this.phone);
-      mask.destroy();
-      phoneMasks.delete(this.phone);
-    }
-
-    if (this.nameMask) {
-      this.nameMask.destroy();
-    }
-
-    this.form = undefined;
-  }
-}
+/**
+ * @typedef {Object} FormInstance
+ * @property {HTMLFormElement} form
+ * @property {Object} options
+ * @property {HTMLButtonElement} [submit]
+ * @property {NodeList} fields
+ * @property {HTMLInputElement} [phone]
+ * @property {HTMLInputElement} [email]
+ * @property {HTMLInputElement} [name]
+ * @property {HTMLElement[]} privacy
+ * @property {HTMLSelectElement} [country]
+ * @property {Object} [nameMask]
+ * @property {Function} onSubmit
+ * @property {Function} onClick
+ * @property {Function} onPrivacyChange
+ * @property {Function} onCountryChange
+ */
 
 /**
- * @typedef {Object} FormsOptions
+ * @typedef {Object} FormOptions
  * @property {string} [selector='.form-custom'] - Селектор форм
- * @property {(form: HTMLFormElement, event: Event) => void} [onSubmit] - Коллбэк при сабмите
- * @property {(form: HTMLFormElement) => void} [onReset] - Коллбэк при сбросе
- * @property {(form: HTMLFormElement, isValid: boolean) => void} [onValidate] - Коллбэк при изменении валидации
+ * @property {(form: HTMLFormElement, event: Event) => void} [onSubmit] - Колбэк при сабмите
+ * @property {(form: HTMLFormElement) => void} [onReset] - Колбэк при сбросе
+ * @property {(form: HTMLFormElement, isValid: boolean) => void} [onValidate] - Колбэк при изменении валидации
  */
-export default class Forms {
+export default class Form {
   constructor(options = {}) {
     /**
-     * @type {FormsOptions}
+     * @type {FormOptions}
      */
     this.options = {
       selector: '.form-custom',
@@ -203,7 +89,7 @@ export default class Forms {
       onValidate: () => {},
       ...options,
     };
-    this.instances = [];
+    this.instances = new Map();
     this.init();
   }
 
@@ -212,44 +98,195 @@ export default class Forms {
   }
 
   update() {
-    this.instances = this.instances.filter((instance) => {
-      if (instance.form && document.contains(instance.form)) return true;
-      instance.destroy();
-      return false;
-    });
+    for (const [form, instance] of this.instances) {
+      if (!document.contains(form)) {
+        this.destroyInstance(instance);
+      }
+    }
 
     const forms = document.querySelectorAll(this.options.selector);
-    const newForms = [...forms].filter((form) => !this.instances.some((instance) => instance.form === form));
-    const newInstances = newForms.map((form) => new Form(form, this.options));
-
-    this.instances = [...this.instances, ...newInstances];
-    return newInstances;
+    for (const form of forms) {
+      if (this.instances.has(form)) continue;
+      const instance = this.createInstance(form);
+      if (instance) {
+        this.instances.set(form, instance);
+      }
+    }
   }
 
   /**
-   * Возвращает экземпляр Form по DOM-элементу
-   * @param {HTMLFormElement| string} form - Элемент формы или селектор
-   * @returns {Form | undefined}
+   * Создаёт экземпляр формы
+   * @param {HTMLFormElement} form
+   * @returns {FormInstance | undefined}
+   */
+  createInstance(form) {
+    if (!form) return;
+
+    const instance = {
+      form,
+      options: { ...this.options },
+      submit: form.querySelector('button[type=submit]'),
+      fields: form.querySelectorAll('input, select, textarea'),
+      phone: form.querySelector('input[type=tel]'),
+      email: form.querySelector('input[type=email]'),
+      name: form.querySelector('input[name=user_name]'),
+      privacy: [...form.querySelectorAll('[data-privacy]')],
+      country: form.querySelector('select[data-target="country"]'),
+      nameMask: undefined,
+    };
+
+    instance.onSubmit = (event) => {
+      instance.options.onSubmit(instance.form, event);
+    };
+
+    instance.onClick = (event) => {
+      const button = event.target.closest('.button');
+      if (!button) return;
+
+      const action = button.dataset.action;
+      if (action === 'reset') {
+        event.preventDefault();
+        this.resetInstance(instance);
+      }
+    };
+
+    instance.onPrivacyChange = (event) => {
+      if (Object.hasOwn(event.target.dataset, 'privacy')) {
+        this.updateSubmitState(instance);
+      }
+    };
+
+    instance.onCountryChange = () => {
+      if (instance.phone) {
+        updatePhoneMask(instance.phone, instance.country.value);
+      }
+    };
+
+    this.initInstance(instance);
+    return instance;
+  }
+
+  /**
+   * @param {FormInstance} instance
+   */
+  initInstance(instance) {
+    this.initNameMask(instance);
+    this.initPhone(instance);
+    this.initPrivacyListener(instance);
+
+    if (instance.country) this.initCountrySelect(instance);
+
+    instance.form.addEventListener('submit', instance.onSubmit);
+    instance.form.addEventListener('click', instance.onClick);
+  }
+
+  initNameMask(instance) {
+    if (!instance.name) return;
+
+    instance.nameMask = IMask(instance.name, {
+      mask: /^[\sA-Za-zЁА-яё-]+$/,
+    });
+  }
+
+  initPhone(instance) {
+    if (!instance.phone) return;
+    const countryCode = instance.phone.dataset.countryCode || (instance.country?.value) || '7';
+    initPhoneMask(instance.phone, countryCode);
+  }
+
+  initPrivacyListener(instance) {
+    if (instance.privacy.length === 0 || !instance.submit) return;
+
+    this.updateSubmitState(instance);
+    instance.form.addEventListener('change', instance.onPrivacyChange);
+  }
+
+  /**
+   * @param {FormInstance} instance
+   */
+  updateSubmitState(instance) {
+    if (!instance.submit) return;
+
+    const allChecked = instance.privacy.every((item) => item.checked);
+    instance.submit.disabled = !allChecked;
+
+    instance.options.onValidate(instance.form, allChecked);
+  }
+
+  /**
+   * @param {FormInstance} instance
+   */
+  initCountrySelect(instance) {
+    instance.country.addEventListener('change', instance.onCountryChange);
+  }
+
+  /**
+   * @param {FormInstance} instance
+   */
+  resetInstance(instance) {
+    instance.form.reset();
+
+    if (instance.phone && phoneMasks.has(instance.phone)) {
+      const mask = phoneMasks.get(instance.phone);
+      mask.value = '';
+      mask.updateValue();
+    }
+
+    this.updateSubmitState(instance);
+    instance.options.onReset(instance.form);
+  }
+
+  /**
+   * @param {FormInstance} instance
+   */
+  destroyInstance(instance) {
+    if (!instance.form) return;
+
+    instance.form.removeEventListener('submit', instance.onSubmit);
+    instance.form.removeEventListener('click', instance.onClick);
+    instance.form.removeEventListener('change', instance.onPrivacyChange);
+
+    if (instance.country) {
+      instance.country.removeEventListener('change', instance.onCountryChange);
+    }
+
+    if (instance.phone && phoneMasks.has(instance.phone)) {
+      const mask = phoneMasks.get(instance.phone);
+      mask.destroy();
+      phoneMasks.delete(instance.phone);
+    }
+
+    if (instance.nameMask) {
+      instance.nameMask.destroy();
+    }
+
+    this.instances.delete(instance.form);
+    instance.form = undefined;
+  }
+
+  /**
+   * Возвращает экземпляр формы по DOM-элементу
+   * @param {HTMLFormElement | string} form - Элемент формы или селектор
+   * @returns {FormInstance | undefined}
    */
   get(form) {
     const element = typeof form === 'string' ? document.querySelector(form) : form;
-    return this.instances.find((instance) => instance.form === element);
+    return this.instances.get(element);
   }
 
   /**
    * Перебирает все формы
-   * @param {(instance: Form) => void} callback
+   * @param {(instance: FormInstance) => void} callback
    */
   forEach(callback) {
-    for (const instance of this.instances) {
+    for (const instance of this.instances.values()) {
       callback(instance);
     }
   }
 
   destroy() {
-    for (const instance of this.instances) {
-      instance.destroy();
+    for (const [form, instance] of this.instances) {
+      this.destroyInstance(instance);
     }
-    this.instances = [];
   }
 }
