@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /* Ядро медиа-запросов */
 @import "abstracts/functions/breakpoint";
 @import "vendors/include/scss-libs/sass-mq/sass-mq";

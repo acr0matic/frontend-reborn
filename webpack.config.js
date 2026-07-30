@@ -56,8 +56,8 @@ module.exports = (env, argv) => {
   return {
     entry: './src/js/app.js',
     stats: {
-      preset: 'errors-only',
-      children: false, // Убивает спам от дочерних сборок (html-webpack-plugin)
+      preset: 'errors-warnings',
+      children: false,
       errorStack: false,
       moduleTrace: false,
     },

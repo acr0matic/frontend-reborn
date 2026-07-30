@@ -1,157 +1,488 @@
-# Памятка по работе со скриптами `frontend-reborn`
+Ниже полный текст, который можно скопировать и использовать как `AGENTS.md` в другом проекте.
 
-## Сборка и запуск
+---
 
-- Разработка: `yarn dev`
-- Сборка: `yarn build`
-- Сборка под WordPress: `yarn build_wp`
+```markdown
+# Руководство по вёрстке и организации фронтенда
 
-При сборке автоматически запускаются ESLint и Stylelint.
+## 1. Общая информация
 
-## Структура JS
+Фронтенд-шаблон для верстки статических веб-страниц с возможностью дальнейшей интеграции в CMS (например, WordPress). Проект использует Webpack, Gulp, SCSS, PostHTML и ванильный JavaScript.
 
-- `src/js/app.js` — точка входа. Подключаёт стили, `init.js` и лейауты.
-- `src/js/global/init.js` — центр инициализации. Создаёт контроллеры в `DOMContentLoaded` и публикует их в `window.App`.
-- `src/js/component/` — переиспользуемые UI-компоненты-контроллеры (`Modal`, `Submenu`, `Accordion`, `Form`, `NumberInput`, `Gallery`, `Tab`).
-- `src/js/utils/` — вспомогательные классы и функции (`Collapse`, `ScrollTop`, `video-optimization`).
-- `src/js/layout/` — логика страниц и глобальных участков (`header`, `menu`).
-- `src/js/libs/` — сторонние библиотеки, не из npm.
+## 2. Технологический стек
 
-## Архитектура компонентов
+| Слой              | Технология                                                              |
+| ----------------- | ----------------------------------------------------------------------- |
+| Сборка            | Webpack 5 + Gulp 5                                                      |
+| Пакетный менеджер | Yarn 4.x                                                                |
+| CSS               | Sass/SCSS + PostCSS (autoprefixer, cssnano, сортировка медиа-запросов)  |
+| Линтеры           | Stylelint (standard-scss), ESLint (standard + unicorn)                  |
+| JS                | Ванильный ES2024, GSAP, vanilla-lazyload, imask                         |
+| HTML              | PostHTML: `<include>`, `<inline>`, условные теги `<if condition="...">` |
+| SVG               | SVG-спрайт с иконками, подключение через `<use href="...#id">`          |
 
-Все компоненты оформлены как **менеджеры коллекций** с единым API:
+После любых изменений в `SCSS` или `JS` обязательно запускать линтеры с флагом `--fix`.
 
-- `init()` — первичная инициализация
-- `update()` — поиск новых элементов в DOM и инициализация только их
-- `destroy()` — удаление всех обработчиков и очистка
+## 3. Структура проекта
 
-Каждый компонент принимает `selector` в опциях и поддерживает callback'и для кастомизации поведения отдельных элементов.
-
-## Как добавить компонент
-
-1. Создайте класс в `src/js/component/` (или `utils/`, или `layout/`).
-2. Используйте `export default class` для контроллеров.
-3. Добавьте методы `init()`, `update()`, `destroy()`.
-4. Импортируйте и создайте экземпляр в `src/js/global/init.js`.
-5. Сохраните ссылку в `window.App.<name>`.
-6. По возможности добавьте JSDoc, особенно `@typedef` для опций конструктора.
-
-## Глобальный объект `window.App`
-
-В `init.js` публикуются контроллеры, к которым можно обращаться извне:
-
-```js
-window.App.modal.open('modal-id');
-window.App.modal.close();
-
-window.App.accordion.closeAll();
-window.App.accordion.update(); // для динамически добавленных аккордеонов
-
-window.App.submenu.update();
-
-window.App.form.update();     // для динамически добавленных форм
-window.App.form.get('#form-id'); // получить конкретную форму
-
-window.App.numberInput.update(); // для динамически добавленных number-полей
+```
+src/
+├── assets/
+│   ├── fonts/
+│   ├── images/
+│   │   ├── icons/        # SVG-иконки и спрайт
+│   │   ├── misc/         # технические изображения
+│   │   └── layout/       # макетные изображения
+│   └── favicons/
+├── js/
+│   ├── app.js
+│   ├── global/
+│   ├── component/
+│   ├── layout/
+│   ├── animation/
+│   └── libs/
+├── layout/
+│   ├── head.html
+│   ├── header.html
+│   ├── footer.html
+│   ├── block/
+│   ├── modal/
+│   ├── section/
+│   └── template/
+├── scss/
+│   ├── main.scss
+│   ├── abstracts/        # mixins, functions, variables
+│   ├── common/
+│   ├── settings/         # vars, fonts, container
+│   ├── vendors/
+│   └── layout/
+└── page-*.html, archive-*.html, single-*.html, misc-*.html
 ```
 
-## Callback'и для кастомизации
+## 4. Создание HTML-страницы
 
-### Modal
+Каждая страница — отдельный HTML-файл в `src/`.
 
-```js
-new Modal({
-  onBeforeOpen: (modal) => { /* перед открытием */ },
-  onShow: (modal) => { /* после открытия */ },
-  onBeforeClose: (modal) => { /* перед закрытием */ },
-  onClose: (modal) => { /* после закрытия */ },
-  onCloseAll: () => { /* после закрытия всех */ },
-});
-```
+```html
+<!DOCTYPE html>
+<html>
 
-### Accordion
+<include src="layout/head.html"></include>
 
-```js
-new Accordion({
-  single: true,
-  onBeforeOpen: (accordion, body) => { /* перед открытием */ },
-  onOpen: (accordion, body) => { /* после открытия */ },
-  onBeforeClose: (accordion, body) => { /* перед закрытием */ },
-  onClose: (accordion, body) => { /* после закрытия */ },
-});
-```
-
-Также можно использовать data-атрибуты для кастомизации отдельных аккордеонов внутри callback'ов:
-
-```js
-new Accordion({
-  onBeforeOpen: (accordion) => {
-    if (accordion.dataset.accordionGsap === 'true') {
-      // кастомная анимация
+<body class="page">
+  <include src="layout/header.html">
+    {
+    "mod": "sticky"
     }
-  },
-});
+  </include>
+
+  <main>
+    <div id="cp-example" class="page__body">
+      <!-- секции -->
+    </div>
+    <!-- /.page__body -->
+  </main>
+
+  <include src="layout/footer.html"></include>
+</body>
+
+</html>
 ```
 
-### Submenu
+Обязательно:
+- `<include src="layout/head.html">`;
+- `<include src="layout/header.html">`;
+- `<include src="layout/footer.html">`;
+- `<body class="page">`;
+- `<main>`;
+- `<div class="page__body" id="...">` с ID страницы по правилам нейминга.
 
-```js
-new Submenu({
-  onOpen: (menu) => { /* после открытия */ },
-  onClose: (menu) => { /* после закрытия */ },
-  onToggle: (menu, isOpen) => { /* при любом переключении */ },
-});
+## 5. Нейминг страниц и секций
+
+Страницы делятся на 4 типа по префиксам, как в WordPress:
+
+| Тип          | Префикс | HTML-файл        | Папка SCSS                   | ID страницы  | ID секции            |
+| ------------ | ------- | ---------------- | ---------------------------- | ------------ | -------------------- |
+| archive-page | `ap-`   | `archive-*.html` | `scss/layout/pages/archive/` | `ap-article` | `ap-article-content` |
+| common-page  | `cp-`   | `page-*.html`    | `scss/layout/pages/common/`  | `cp-about`   | `cp-about-hero`      |
+| misc-page    | `mp-`   | `misc-*.html`    | `scss/layout/pages/misc/`    | `mp-content` | `mp-content-text`    |
+| single-page  | `sp-`   | `single-*.html`  | `scss/layout/pages/single/`  | `sp-product` | `sp-product-content` |
+
+Правила:
+- ID страницы: `{префикс}-{название}` на `.page__body`.
+- ID секции: `{префикс}-{название}-{секция}` на `<section class="section">`.
+- Если имя страницы уже содержит `content`, секция называется `...-content-text`, чтобы избежать `content-content`.
+- Сложные страницы (Главная, О компании) могут использовать собственные семантические имена секций: `hero`, `info`, `achievements`, `buy`.
+
+## 6. Комментарии в HTML
+
+После каждого закрывающего `</div>` ставится комментарий с первым классом элемента:
+
+```html
+<div class="container">
+  <div class="content">
+    <div class="content__text" data-editor>
+      ...
+    </div>
+    <!-- /.content__text -->
+  </div>
+  <!-- /.content -->
+</div>
+<!-- /.container -->
 ```
 
-### Form
+Это касается всех `div`: `page__body`, `container`, `content`, `swiper`, `swiper-wrapper`, BEM-блоков и их элементов.
 
-```js
-new Form({
-  onSubmit: (form, event) => { /* при сабмите */ },
-  onReset: (form) => { /* при сбросе */ },
-  onValidate: (form, isValid) => { /* при изменении состояния privacy */ },
-});
+## 7. Include и условные теги
+
+### Подключение блоков
+
+```html
+<include src="layout/block/achievements.html"></include>
 ```
 
-- Кнопка с `data-action="reset"` вызывает сброс формы.
-- Формы ищутся по классу `.form-custom`.
-- Доступ к конкретной форме — через `window.App.form.get('#form-id')`.
+### Передача данных
 
-### Number inputs
+```html
+<include src="layout/template/card/product.html">
+  {
+  "isPreorder": true,
+  "isNew": false
+  }
+</include>
+```
 
-- Автоматически инициализируются для `input[type="number"]` с атрибутами `min`/`max`.
-- При `change` значение приводится к границам. Пустое/некорректное значение сбрасывается к `min` или очищается.
+### Условные теги внутри шаблона
 
-### Видео
+```html
+<div class="card-product__badges">
+  <if condition="isNew">
+    <div class="card-product__badge">Новинка</div>
+  </if>
+</div>
 
-- `PlayVideoInViewport()` ставит на паузу/воспроизведение видео с атрибутом `[lazy-video]` в зависимости от видимости во viewport.
+<div class="card-product__action">
+  <if condition="isPreorder">
+    <button class="button button-primary" type="button">Под заказ</button>
+  </if>
+  <else>
+    <button class="button button-primary button-primary--accent" type="button">В корзину</button>
+  </else>
+</div>
+```
 
-### Лейаут
+## 8. data-editor — текстовые блоки
 
-- `header.js` обновляет CSS-переменную `--header-height` при загрузке и ресайзе.
-- `menu.js` управляет мобильным меню: открытие по `.hamburger`, закрытие по клику вне `.mobile-menu__content`.
+Текстовые блоки, которые редактируются через CMS, помечаются атрибутом `data-editor`:
 
-## Подключение галереи и табов
+```html
+<div class="content__text" data-editor>
+  <p>...</p>
+  <h2>...</h2>
+  <ul>...</ul>
+</div>
+```
 
-Файлы `component/gallery.js` и `component/tabs.js` используют `swiper`. Перед раскомментированием их импортов установите зависимость:
+Принципы:
+- класс-обёртка отвечает только за позиционирование (ширина, отступы);
+- типографика наследуется из `src/scss/layout/components/editor/_editor.scss`;
+- не дублировать `font-size`, `line-height`, `font-weight`, отступы между параграфами и списками.
+
+## 9. Изображения, иконки, SVG
+
+### Корневая структура
+
+```
+src/assets/images/
+├── icons/
+│   ├── package.svg          # основной SVG-спрайт
+│   ├── payment/
+│   └── social/
+├── misc/
+│   └── preloader.svg
+└── layout/
+    ├── global/
+    ├── modal/
+    ├── section/
+    ├── block/
+    └── page/
+```
+
+### Иконки
+
+Используются из SVG-спрайта через `<use>`:
+
+```html
+<svg class="icon">
+  <use href="assets/images/icons/package.svg#arrow-dropdown"></use>
+</svg>
+```
+
+ID иконок именуются по шаблону `группа-назначение`:
+- `arrow-*` — стрелки;
+- `misc-*` — сервисные иконки;
+- `profile-*` — личный кабинет;
+- `payment-*` — способы оплаты;
+- `social-*` — соцсети.
+
+### Макетные изображения
+
+Папки в `layout/` повторяют структуру проекта:
+
+| Расположение            | Пример пути                                         |
+| ----------------------- | --------------------------------------------------- |
+| Глобальные элементы     | `assets/images/layout/global/footer/reward_1.png`   |
+| Модальные окна          | `assets/images/layout/modal/painting/art.svg`       |
+| Переиспользуемые секции | `assets/images/layout/section/callback/picture.png` |
+| Страницы                | `assets/images/layout/page/cp-home/hero/bg_pc.jpg`  |
+
+Папка страницы = ID страницы, подпапки = имена секций:
+
+```text
+layout/page/cp-home/hero/
+layout/page/cp-home/about/
+layout/page/cp-home/buy/
+layout/page/cp-about/textblock/
+layout/page/sp-product/colors/
+```
+
+### Адаптивные фоны
+
+Имена файлов для адаптивных версий:
+
+```html
+<picture class="hero__bg lazy">
+  <source media="(max-width: 767px)" srcset="assets/images/layout/page/cp-home/hero/bg_mobile.jpg">
+  <source media="(max-width: 1023px)" srcset="assets/images/layout/page/cp-home/hero/bg_tablet.jpg">
+  <img class="image image--cover lazy__item lazy__item--blur" data-src="assets/images/layout/page/cp-home/hero/bg_pc.jpg" alt="">
+</picture>
+```
+
+| Имя             | Устройство |
+| --------------- | ---------- |
+| `bg_pc.jpg`     | десктоп    |
+| `bg_tablet.jpg` | планшет    |
+| `bg_mobile.jpg` | телефон    |
+
+### Ленивая загрузка
+
+```html
+<img class="image image--cover lazy__item" data-src="..." alt="">
+<picture class="lazy">
+  <img class="image image--cover lazy__item lazy__item--blur" data-src="..." alt="">
+</picture>
+```
+
+## 10. SCSS: переменные и принципы
+
+### CSS-переменные vs SASS-переменные
+
+```scss
+:root {
+  // CSS-переменные — могут меняться в медиа-запросах
+  --font-title-large: 50px;
+  --font-title-medium: 32px;
+  --font-text-regular: 16px;
+  --line-height-large: 1.5;
+
+  @include mq($until: desktop) {
+    --font-title-large: 36px;
+  }
+
+  @include mq($until: tablet) {
+    --font-title-large: 32px;
+  }
+}
+
+// SASS-переменные — константы
+$transition-time: 0.3s;
+$palette-black: #14181c;
+$weight-Light: 300;
+```
+
+Правило:
+- CSS-переменные (`--*`) — для значений, которые адаптируются.
+- SASS-переменные (`$*`) — для констант: цвета, толщины шрифта, переходы.
+
+### Типографика
+
+```scss
+body {
+  font-family: $font-default;
+  font-size: var(--font-text-regular);
+  font-weight: $weight-Light;
+  line-height: var(--line-height-large);
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: $weight-Regular;
+  line-height: var(--line-height-small);
+}
+```
+
+Размеры шрифтов не привязаны к HTML-тегам, а описывают визуальный уровень:
+- `--font-title-large`
+- `--font-title-medium`
+- `--font-title-small`
+- `--font-text-large`
+- `--font-text-big`
+- `--font-text-regular`
+- `--font-text-small`
+
+### Палитра и семантические цвета
+
+```scss
+$palette-white: #ffffff;
+$palette-gray: #e9ebee;
+$palette-black: #14181c;
+
+$palette-accent: #1976d2;
+$palette-neutral: #87919b;
+
+$color-text__primary: $palette-black;
+$link-hover-color: $palette-accent !default;
+```
+
+- `$palette-*` — абстрактные цвета.
+- `$color-text__primary`, `$link-color` — семантические роли.
+
+### Контейнеры
+
+```scss
+$container-max-widths: (
+  mobile: 480px,
+  tablet: 768px,
+  notebook: 991px,
+  laptop: 1200px,
+  desktop: 1700px
+);
+
+$container-wide-width: 1800px;
+$container-padding: 16px;
+```
+
+Миксин `make-container` генерирует адаптивный контейнер. Класс `.container--wide` используется для широких блоков (шапка, футер, слайдеры).
+
+### z-index
+
+```scss
+$z-index-header: 50;
+$z-index-overlay: 51;
+$z-index-menu: 52;
+$z-index-modal: 53;
+$z-index-toast: 54;
+```
+
+Используются переменные, чтобы слои не конфликтовали и управлялись централизованно.
+
+## 11. BEM и плоская вложенность
+
+### Базовый нейминг
+
+```html
+<div class="card">
+  <h3 class="card__title">Заголовок</h3>
+  <picture class="card__picture">
+    <img class="card__picture-img" src="..." alt="">
+  </picture>
+  <p class="card__text">Текст</p>
+</div>
+```
+
+```scss
+.card {
+  &__title { }
+  &__picture {
+    &-img { }
+  }
+  &__text { }
+}
+```
+
+### Правила вложенности
+
+- `&__element` пишется только внутри блока.
+- Для составных имён используется `&-suffix`: `&__card` → `&-title` = `.content__card-title`.
+- Глубина вложенности — максимум 2 уровня: `#id { .block { &__element {} } }`.
+- Не вкладывать `&__` в `&__`: `.block__body__title` — это не BEM.
+
+## 12. CSS Grid и адаптив
+
+### Двухколоночные макеты
+
+```scss
+.content {
+  @include mq($until: laptop) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  display: grid;
+  grid-template-columns: 510px 1fr;
+  gap: 64px;
+}
+```
+
+### Сетки карточек
+
+```scss
+&__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+```
+
+### Принципы
+
+- `minmax(0, 1fr)` вместо `1fr`, чтобы контент не растягивал колонку.
+- `min-height: 2lh` для выравнивания заголовков в карточках.
+- `aspect-ratio` для изображений вместо фиксированных `width`/`height`.
+- Округлять значения до «чистых» чисел: `549px` → `550px`, `512px` → `510px`.
+- Не дублировать наследуемые свойства: `color`, `font-weight`, `line-height`.
+- Классы вешаются на семантические элементы (`<picture>`, `<h3>`, `<img>`), без лишних `div`-обёрток.
+
+## 13. JavaScript
+
+- ES6+ классы.
+- JSDoc для методов.
+- Экспорт по умолчанию.
+- Глобальный доступ через `window.App`.
+- GSAP-анимации подключаются через `data-animation="тип"` на секциях.
+- Использование `querySelectorAll` + `for...of` для обработки всех элементов.
+- ScrollTrigger с `toggleActions: 'play none none reverse'`.
+- `ease: 'power2.out'` для естественных анимаций.
+
+## 14. Линтеры и автоисправление
+
+После изменений в `SCSS` или `JS`:
 
 ```bash
-yarn add swiper
+npx stylelint "src/scss/**/*.scss" --fix
+npx eslint "src/js/**/*.js" --fix
 ```
 
-После установки импортируйте в `init.js` и создайте экземпляры:
+Или через скрипты `package.json`.
 
-```js
-import Gallery from '../component/gallery';
-import Tab from '../component/tabs';
+## 15. Основные команды
 
-// в DOMContentLoaded:
-window.App.gallery = new Gallery();
-window.App.tab = new Tab();
+```bash
+yarn run dev       # локальный сервер с hot reload
+yarn run build     # production-сборка
+yarn run build_wp  # сборка для WordPress
+yarn run deploy    # деплой на FTP
 ```
 
-## Стилистика и линтеры
+## Основные принципы в одном списке
 
-- ESLint: `standard` + `unicorn/recommended`.
-- StyleLint: `stylelint-config-standard-scss`.
-- Комментарии и JSDoc пишутся на русском языке.
+1. CSS-переменные — для адаптивных значений, SASS-переменные — для констант.
+2. Использовать существующие переменные из `src/scss/settings/_vars.scss`.
+3. Пути к изображениям повторяют структуру: `assets/images/layout/page/{id-страницы}/{секция}/{файл}`.
+4. Иконки — из спрайта `package.svg` через `<use>`.
+5. `data-editor` для текстовых CMS-блоков.
+6. ID страниц и секций по префиксам `cp-`, `ap-`, `mp-`, `sp-`.
+7. Плоский BEM, глубина вложенности ≤ 2.
+8. CSS Grid для структуры, `minmax(0, 1fr)` для карточек.
+9. Комментарии `<!-- /.class-name -->` после каждого `</div>`.
+10. После изменений запускать `stylelint` и `eslint` с `--fix`.
+```
