@@ -15,6 +15,9 @@
 .vscode/
 .idea/
 
+# Симлинки на .agents/skills, создаются skills CLI — не коммитим
+.claude/
+
 .pnp.*
 *.css.map
 *.js.map
