@@ -16,7 +16,7 @@
 ## Установка
 
 Необходимо установить [Node.js](https://nodejs.org/) и [Yarn](https://yarnpkg.com/).
-Версия Yarn зафиксирована в проекте как `yarn@4.11.0`.
+Версия Yarn зафиксирована в проекте как `yarn@4.18.0`.
 В качестве локального сервера используется Webpack Dev Server.
 
 Клонируем репозиторий себе на компьютер:
@@ -73,8 +73,8 @@ yarn run deploy
 
 Скопируйте пример файла и заполните актуальные значения:
 
-```sh
-cp .env.example .env
+```powershell
+Copy-Item .env.example .env
 ```
 
 Доступные переменные:
@@ -159,6 +159,8 @@ HTML-разметке (например, в футере сайта как «Д�
 
 ```
 frontend-reborn
+├── .agents
+│   └── skills            # проектные скиллы для агентов
 ├── node_scripts
 ├── src
 │   ├── assets
@@ -166,14 +168,19 @@ frontend-reborn
 │   │   ├── fonts
 │   │   └── images
 │   ├── js
-│   │   ├── component
-│   │   ├── global
-│   │   ├── layout
+│   │   ├── component     # переиспользуемые контроллеры
+│   │   │   ├── ui        # интерактивные компоненты (modal, tabs, accordion)
+│   │   │   ├── input     # элементы ввода (number, select)
+│   │   │   └── form      # формы
+│   │   ├── global        # настройки, реестр App, инициализация
+│   │   ├── layout        # скрипты каркаса и сущностей (page/, section/, block/, modal/)
+│   │   ├── animation     # GSAP-сценарии (data-animation)
 │   │   ├── libs
 │   │   └── utils
 │   ├── layout
 │   │   ├── block
 │   │   ├── modal
+│   │   ├── section
 │   │   └── template
 │   ├── scss
 │   │   ├── abstracts
@@ -246,48 +253,58 @@ frontend-reborn
 ```
 scss/
 ├── abstracts/
-│   ├── _main.scss           # Главный файл
-│   ├── mixins.scss          # Каталог с миксинами
-│       ├── _container.scss  # Создание контейнеров
-│       ├── _font.scss       # Миксин локального подключения шрифтов
-│   ├── variables.scss       # Каталог с переменными
-│       ├── _weight.scss     # Толщины шрифтов
-│       ├── _z-index.scss    # Схема управления слоями
-├── base/
-│   ├── _common.scss         # Базовые стили применяющие после normalize
+│   ├── functions/           # Функции (breakpoint и др.)
+│   ├── mixins/              # Миксины (container, font и др.)
+│   ├── variables/           # Sass-константы (weight, z-index)
+│   └── _main.scss           # Агрегатор
+├── common/
+│   ├── _base.scss           # Базовые стили после normalize
 │   ├── _misc.scss           # Специфичные правила для блоков
-│   ├── _reset.scss          # Сброс стандартных значений
+│   └── _reset.scss          # Сброс стандартных значений
 ├── layout/
-│   ├── components/          # UI-компоненты (кнопки, инпуты, и прочая мелочь)
-│   ├── global/              # Глобальные стили и базовые сущности
-│   ├── misc/                # Вспомогательные и служебные стили
-│   ├── pages/               # Стили страниц
-│   │   ├── archive/         # Каталожные страницы
-│   │   ├── common/          # Обычные страницы
-│   │   ├── misc/            # Другие страницы (404, поиск и т.д.)
-│   │   ├── single/          # Внутренние страницы каталогов
+│   ├── components/          # UI-компоненты (button, input, modal и т.д.)
+│   ├── global/              # Глобальный каркас (page, header, nav, section)
+│   ├── pages/               # Стили страниц по типам
+│   │   ├── archive/         # Каталожные страницы (ap-*)
+│   │   ├── common/          # Обычные страницы (cp-*)
+│   │   ├── misc/            # Служебные страницы (mp-*)
+│   │   ├── single/          # Одиночные страницы (sp-*)
 │   │   └── _main.scss       # Точка входа pages
-│   ├── partials/            # Переиспользуемые крупные блоки
-│   │   ├── block/           # Блоки
-│   │   ├── card/            # Карточки
-│   │   ├── section/         # Секции
-│   │   └── _main.scss       # Точка входа partials
+│   └── partials/            # Переиспользуемые сущности
+│       ├── block/           # Блоки (b-*)
+│       ├── card/            # Карточки (card-*)
+│       ├── misc/            # Служебные стили (.image и пр.)
+│       ├── section/         # Общие секции (s-*)
+│       └── _main.scss       # Точка входа partials
 ├── settings/
-│   ├── _breakpoint.scss     # Брейкпоинты для медиазапросов
 │   ├── _container.scss      # Ширины контейнеров
 │   ├── _fonts.scss          # Подключение шрифтов
-│   └── _vars.scss           # Настройка цветов, размеров шрифтов, скруглений и т.д.
+│   └── _vars.scss           # Токены: цвета, шрифты, брейкпоинты (--bp-*)
 ├── vendors/
-│   └── _vendors.scss        # Main vendors file
-├── _settings.scss           # Sass Settings
-└── main.scss                # Главная точка входа
+│   ├── include/             # Подключаемые библиотеки (sass-mq, hamburgers, family)
+│   ├── extend/              # Расширение библиотек
+│   └── override/            # Переопределение стилей библиотек
+└── main.scss                # Главная точка входа (порядок импортов = каскад)
 ```
 
 ### Скрипты JS
 
-* Точка входа находится в `src/js`.
-* Для удобства сопровождения выносите логику в отдельные модули и подключайте их в `src/js`.
-* Общие утилиты можно хранить в папке `src/js/utils`.
+* Точка входа — `src/js/app.js` (стили + `global/init`).
+* Компоненты реализуют единый lifecycle: `init()` / `update(root)` / `destroy()` и регистрируются в реестре `App` в `global/init.js`.
+* Публичный API для интеграторов — фасад `window.App` и события на `document` (подробно в `DOCS.MD`).
+* `component/` — переиспользуемые контроллеры по ролям: `ui/`, `input/`, `form/`.
+* `layout/` — скрипты конкретных сущностей: `page/{page-id}.js`, `section/`, `block/`, `modal/`; page-скрипт ищет корень по ID и выходит, если его нет.
+* `utils/` — небольшие утилиты, `animation/` — GSAP-сценарии через `data-animation`.
+
+### Скиллы для агентов
+
+В `.agents/skills/` лежат проектные скиллы:
+
+* `new-page` — скаффолд новой страницы по методологии (тип, ID, include-каркас, SCSS, dashboard);
+* `verify-page` — приёмочная проверка страницы (линтеры, сборка, браузер, чек-лист);
+* `accessibility`, `best-practices`, `core-web-vitals`, `performance`, `web-quality-audit` — внешние стандарты качества (пакет web-quality-skills).
+
+Подробная методология вёрстки — в `AGENTS.md`, публичный API и контракты компонентов — в `DOCS.MD`.
 
 ## Предустановленные зависимости
 
