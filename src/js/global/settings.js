@@ -5,11 +5,11 @@ import { getBreakpointVar } from './func';
 // Повторяющиеся стили
 export const StyleClass = {
   mobile: {
-    open: 'mobile-menu--open',
+    open: 'is-open',
   },
 
   body: {
-    scroll: 'scroll-lock'
+    scroll: 'is-scroll-locked'
   },
 
   state: {

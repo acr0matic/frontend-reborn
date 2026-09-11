@@ -7,7 +7,7 @@
   height: 100%;
 
   font-size: var(--font-text-big);
-  line-height: var(--line-height-text);
+  line-height: var(--line-height-large);
 
   &.open::after {
     transform: rotate(180deg);

@@ -22,12 +22,12 @@ const modalController = new Modal({
 ### HTML-структура
 
 ```html
-<div class="modal" data-modal="modal-id">
+<div class="modal" data-modal="modal-id" role="dialog" aria-modal="true" aria-labelledby="modal-id-title" aria-hidden="true">
   <div class="modal__overlay">
     <div class="modal__container">
       <div class="modal__header">
-        <p class="modal__title">Заголовок</p>
-        <div class="modal__close" data-modal-close></div>
+        <p class="modal__title" id="modal-id-title">Заголовок</p>
+        <button class="modal__close" type="button" data-modal-close aria-label="Закрыть"></button>
       </div>
       <div class="modal__content">
         <!-- Контент модалки -->
@@ -147,13 +147,13 @@ const accordionController = new Accordion({
 ### HTML-структура
 
 ```html
-<div class="b-accordion">
-  <div class="b-accordion__header">
+<div class="c-accordion">
+  <div class="c-accordion__header">
     <h3>Заголовок аккордеона</h3>
   </div>
 
-  <div class="b-accordion__body">
-    <div class="b-accordion__content">
+  <div class="c-accordion__body">
+    <div class="c-accordion__content">
       <p>Содержимое аккордеона...</p>
     </div>
   </div>
@@ -166,9 +166,9 @@ const accordionController = new Accordion({
 |--------|------|-------------|----------|
 | `duration` | number | `600` | Длительность анимации в мс |
 | `initializedClass` | string | `'is-initialized'` | CSS класс инициализированных аккордеонов |
-| `accordionSelector` | string | `'.b-accordion'` | Селектор аккордеонов |
-| `headerSelector` | string | `'.b-accordion__header'` | Селектор заголовков |
-| `bodySelector` | string | `'.b-accordion__body'` | Селектор содержимого |
+| `accordionSelector` | string | `'.c-accordion'` | Селектор аккордеонов |
+| `headerSelector` | string | `'.c-accordion__header'` | Селектор заголовков |
+| `bodySelector` | string | `'.c-accordion__body'` | Селектор содержимого |
 
 ### Методы
 
@@ -182,7 +182,7 @@ const accordionController = new Accordion({
 
 ```javascript
 // Открыть аккордеон по селектору
-window.App.accordion.open('.b-accordion:first-child');
+window.App.accordion.open('.c-accordion:first-child');
 
 // Закрыть все аккордеоны
 window.App.accordion.closeAll();
@@ -225,7 +225,7 @@ window.App.modal.closeAll();
 window.App.submenu.update();
 
 // Работа с аккордеонами
-window.App.accordion.open('.b-accordion:first-child');
+window.App.accordion.open('.c-accordion:first-child');
 window.App.accordion.closeAll();
 window.App.accordion.update();
 

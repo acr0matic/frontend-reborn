@@ -1,5 +1,6 @@
 .input {
   position: relative;
+  display: block;
 
   &__field {
     width: 100%;
@@ -16,6 +17,11 @@
 
     &::placeholder {
       color: #353535;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $link-color;
+      outline-offset: 1px;
     }
 
     &:focus + .input__label,

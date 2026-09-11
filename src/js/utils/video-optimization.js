@@ -1,31 +1,19 @@
 export function PlayVideoInViewport() {
-  const videos = document.querySelectorAll("[lazy-video]");
-  if (!videos) return;
+  const videos = document.querySelectorAll('[lazy-video]');
+  if (videos.length === 0) return;
 
   for (const video of videos) {
-    const playPromise = video.play();
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.05 }
+    );
 
-    let observer;
-
-    if (playPromise !== undefined) {
-      playPromise
-        .then((_) => {
-          observer = new IntersectionObserver(
-            ([entry]) => {
-              if (entry.isIntersecting) {
-                video.play();
-              } else {
-                video.pause();
-              }
-            },
-            { threshold: 0.05 }
-          );
-
-          observer.observe(video);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
+    observer.observe(video);
   }
 }

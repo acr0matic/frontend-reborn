@@ -65,7 +65,7 @@ src/
 
 ```html
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 
 <include src="layout/head.html"></include>
 
@@ -90,6 +90,7 @@ src/
 ```
 
 Обязательно:
+- `<html lang="ru">` (или нужный язык страницы);
 - `<include src="layout/head.html">`;
 - `<include src="layout/header.html">`;
 - `<include src="layout/footer.html">`;

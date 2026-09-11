@@ -1,32 +1,32 @@
-<div class="modal mw-callback" data-modal="callback">
+<div class="modal mw-callback" data-modal="callback" role="dialog" aria-modal="true" aria-labelledby="modal-callback-title" aria-hidden="true">
   <div class="modal__overlay">
     <div class="modal__container">
       <div class="modal__wrapper">
         <div class="modal__header">
-          <p class="modal__title">Заголовок формы</p>
-          <div class="modal__close" data-modal-close></div>
+          <p class="modal__title" id="modal-callback-title">Заголовок формы</p>
+          <button class="modal__close" type="button" data-modal-close aria-label="Закрыть"></button>
         </div>
         <!-- /.modal__header -->
 
         <div class="modal__content">
           <form class="form form-custom" action="">
             <div class="form__wrapper">
-              <div class="input">
-                <input placeholder="" autocomplete="off" type="text" name="user_name" class="input__field">
+              <label class="input">
+                <input placeholder="" autocomplete="name" type="text" name="user_name" class="input__field">
                 <span class="input__label">Имя</span>
-              </div>
+              </label>
               <!-- /.input -->
 
-              <div class="input input--box">
+              <label class="input input--box">
                 <textarea placeholder="" class="input__field" name="user_message"></textarea>
                 <span class="input__label">Комментарий</span>
-              </div>
+              </label>
               <!-- /.input -->
             </div>
             <!-- /.form__wrapper -->
 
             <div class="form__action">
-              <button class="button button-primary"><span>Отправить</span></button>
+              <button class="button button-primary" type="submit"><span>Отправить</span></button>
             </div>
             <!-- /.form__action -->
 

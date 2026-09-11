@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements_selector: '.lazy__item:not([data-custom-lazy])',
 
     callback_loaded: (trigger) => {
-      const container = trigger.closest('.lazy');
-      container.classList.remove('lazy--preloader');
+      trigger.closest('.lazy')?.classList.remove('lazy--preloader');
     },
   });
 

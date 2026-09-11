@@ -8,7 +8,8 @@ if (menu) {
 
   const toggleMenu = (isOpen) => {
     menu.classList.toggle(StyleClass.state.open, isOpen);
-    button.classList.toggle(StyleClass.state.active, isOpen);
+    button?.classList.toggle(StyleClass.state.active, isOpen);
+    button?.setAttribute('aria-expanded', String(isOpen));
     document.body.classList.toggle(StyleClass.body.scroll, isOpen);
   };
 

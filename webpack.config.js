@@ -29,11 +29,11 @@ fs.writeFileSync(postHtmlCustomLoader, `
   module.exports = function(content) {
     const regex = /<include[^>]+src="([^"]+)"/gi;
     let match;
-    while ((match = regex.exec(content)) !== null) {
-      this.addDependency(path.resolve(this.rootContext, 'src', match[1]));
-    }
-    return content;
-  };
+      while ((match = regex.exec(content)) !== null) {
+        this.addDependency(path.resolve(this.rootContext, 'src', match[1]));
+      }
+      return content;
+    };
 `);
 
 const includeRoot = path.resolve(__dirname, 'src');
@@ -55,16 +55,7 @@ module.exports = (env, argv) => {
 
   return {
     entry: './src/js/app.js',
-    stats: {
-      preset: 'errors-warnings',
-      children: false,
-      errorStack: false,
-      moduleTrace: false,
-    },
-
-    infrastructureLogging: {
-      level: 'warn',
-    },
+    stats: 'errors-only',
 
     mode: isProduction ? 'production' : 'development',
     devtool: 'source-map',

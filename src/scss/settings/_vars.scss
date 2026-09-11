@@ -27,6 +27,11 @@ CSS-переменные. Во всех других случаях - SASS.
   --line-height-large: 1.5;
   --line-height-medium: 1.3;
   --line-height-small: 1.2;
+
+  /* Брейкпоинты для JavaScript (читаются через getBreakpointVar / breakpoint) */
+  @each $name, $width in $generated-breakpoints {
+    --bp-#{$name}: #{$width};
+  }
 }
 /* Конец CSS-переменных */
 
