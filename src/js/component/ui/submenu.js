@@ -1,4 +1,4 @@
-import { Collapse } from "../utils/collapse";
+import { Collapse } from "../../utils/collapse";
 
 /**
  * Class for managing navigation submenus

@@ -1,15 +1,15 @@
 /* Прописываются все инициализации и первичные параметры для скриптов */
 
 // import ScrollTop from '../utils/scroll-top';
-// import Gallery from '../component/gallery';
-// import Tab from '../component/tabs';
+// import Gallery from '../component/ui/gallery';
+// import Tab from '../component/ui/tabs';
 
 import LazyLoad from 'vanilla-lazyload';
-import Modal from '../component/modal';
-import Submenu from '../component/submenu';
-import Accordion from '../component/accordion';
-import Form from '../component/form';
-import NumberInput from '../component/input';
+import Modal from '../component/ui/modal';
+import Submenu from '../component/ui/submenu';
+import Accordion from '../component/ui/accordion';
+import Form from '../component/form/form';
+import NumberInput from '../component/input/number';
 
 import Header from '../layout/header';
 import MobileMenu from '../layout/menu';

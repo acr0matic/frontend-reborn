@@ -1,7 +1,7 @@
 import { Swiper } from "swiper";
 import { Navigation, Thumbs, EffectFade } from "swiper/modules";
-import { MediaQuery } from '../global/func';
-import { breakpoint } from '../global/settings';
+import { MediaQuery } from '../../global/func';
+import { breakpoint } from '../../global/settings';
 
 export default class Gallery {
   constructor(options = {}) {

@@ -1,4 +1,4 @@
-import NiceSelect from '../libs/nice-select2';
+import NiceSelect from '../../libs/nice-select2';
 
 const selectArray = document.querySelectorAll('select');
 
