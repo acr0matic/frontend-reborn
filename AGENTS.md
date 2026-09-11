@@ -13,7 +13,7 @@
 
 | Слой              | Технология                                                              |
 | ----------------- | ----------------------------------------------------------------------- |
-| Сборка            | Webpack 5 (`build_wp` = `webpack --env=wp`)                             |
+| Сборка            | Webpack 5 (`build:wp` = `webpack --env=wp`)                             |
 | Пакетный менеджер | Yarn 4.x                                                                |
 | CSS               | Sass/SCSS + PostCSS (autoprefixer, cssnano, сортировка медиа-запросов)  |
 | Линтеры           | Stylelint (standard-scss), ESLint (standard + unicorn)                  |
@@ -524,8 +524,10 @@ npx eslint "src/js/**/*.js" --fix
 ```bash
 yarn run dev       # локальный сервер с hot reload
 yarn run build     # production-сборка
-yarn run build_wp  # сборка для WordPress (webpack --env=wp)
+yarn run build:wp  # сборка для WordPress (webpack --env=wp)
 yarn run deploy    # деплой на FTP
+yarn run fonts:get "Семейство:веса"  # скачать статические TTF с Google Fonts и сконвертировать
+yarn run fonts:convert  # локальные *.ttf/*.otf в src/assets/fonts → .woff + .woff2 (исходники удаляются)
 ```
 
 ## 16. Скиллы проекта

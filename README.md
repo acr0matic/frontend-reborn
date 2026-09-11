@@ -152,8 +152,10 @@ HTML-разметке (например, в футере сайта как «Д�
 
 * `yarn run dev` — режим разработки с локальным сервером и hot reload.
 * `yarn run build` — production-сборка.
-* `yarn run build_wp` — сборка в структуре WordPress-темы (`webpack --env=wp`): `style.css` с заголовком темы в корне `dist`, JS в `assets/js/`.
+* `yarn run build:wp` — сборка в структуре WordPress-темы (`webpack --env=wp`): `style.css` с заголовком темы в корне `dist`, JS в `assets/js/`.
 * `yarn run deploy` — загрузка сборки на удаленный хост (настройка FTP — в `node_scripts/deploy.js`).
+* `yarn run fonts:get "Семейство:веса"` — скачать статические шрифты с Google Fonts и сконвертировать (например, `yarn run fonts:get "Moderustic:300,400,500,600,700"`).
+* `yarn run fonts:convert` — сконвертировать локальные `*.ttf`/`*.otf` из `src/assets/fonts` в `.woff` и `.woff2`.
 
 ## Стандартная файловая структура
 
@@ -245,7 +247,7 @@ frontend-reborn
   * используйте [форматы](https://caniuse.com/#search=woff) ```.woff``` и ```.woff2```
   * шрифты подключаются в файл ```src/scss/settings/_fonts.scss```
   * рекомендуется использовать шрифты локально, а не подключать из внешних источников
-  * сконвертировать локальные шрифты можно с помощью [данного сервиса](https://transfonter.com/)
+  * сконвертировать локальные шрифты можно командой `yarn run fonts:convert`, скачать с Google Fonts — `yarn run fonts:get`
   * используйте только те толщины шрифтов, которые используюся по дизайн-макету
 
 ### Стили CSS
