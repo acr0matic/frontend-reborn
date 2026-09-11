@@ -1,28 +1,64 @@
-import { header } from "./header";
 import { StyleClass } from "../global/settings";
 
-const menu = header?.querySelector('.mobile-menu');
+/**
+ * Мобильное меню: открытие по гамбургеру, закрытие по клику вне контента и по Escape
+ */
+export default class MobileMenu {
+  constructor(options = {}) {
+    this.options = {
+      menuSelector: '.mobile-menu',
+      contentSelector: '.mobile-menu__content',
+      buttonSelector: '.hamburger',
+      ...options,
+    };
 
-if (menu) {
-  const button = header.querySelector('.hamburger');
+    this.controller = new AbortController();
+    this.menu = undefined;
+    this.button = undefined;
 
-  const toggleMenu = (isOpen) => {
-    menu.classList.toggle(StyleClass.state.open, isOpen);
-    button?.classList.toggle(StyleClass.state.active, isOpen);
-    button?.setAttribute('aria-expanded', String(isOpen));
-    document.body.classList.toggle(StyleClass.body.scroll, isOpen);
+    this.init();
+  }
+
+  init() {
+    this.update();
+
+    window.addEventListener('click', this.onWindowClick, { signal: this.controller.signal });
+    window.addEventListener('keydown', this.onWindowKeydown, { signal: this.controller.signal });
+  }
+
+  onWindowClick = (event) => {
+    const target = event.target;
+
+    if (target.closest(this.options.buttonSelector)) {
+      const isOpen = this.menu?.classList.contains(StyleClass.state.open);
+      this.toggle(!isOpen);
+    } else if (!target.closest(this.options.contentSelector)) {
+      this.toggle(false);
+    }
   };
 
-  window.addEventListener('click', (e) => {
-    const target = e.target;
+  onWindowKeydown = (event) => {
+    if (event.key === 'Escape') this.toggle(false);
+  };
 
-    if (target.closest('.hamburger')) {
-      const isMenuOpen = menu.classList.contains(StyleClass.state.open);
-      toggleMenu(!isMenuOpen);
-    }
+  toggle(isOpen) {
+    if (!this.menu) return;
 
-    else if (!target.closest('.mobile-menu__content')) {
-      toggleMenu(false);
-    }
-  });
+    this.menu.classList.toggle(StyleClass.state.open, isOpen);
+    this.button?.classList.toggle(StyleClass.state.active, isOpen);
+    this.button?.setAttribute('aria-expanded', String(isOpen));
+    document.body.classList.toggle(StyleClass.body.scroll, isOpen);
+  }
+
+  update() {
+    this.menu = document.querySelector(this.options.menuSelector);
+    this.button = document.querySelector(this.options.buttonSelector);
+  }
+
+  destroy() {
+    this.controller.abort();
+    this.toggle(false);
+    this.menu = undefined;
+    this.button = undefined;
+  }
 }

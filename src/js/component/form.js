@@ -97,14 +97,18 @@ export default class Form {
     this.update();
   }
 
-  update() {
+  /**
+   * Инициализирует новые формы и вычищает удалённые из DOM
+   * @param {ParentNode} [root=document] - корневой узел для поиска форм
+   */
+  update(root = document) {
     for (const [form, instance] of this.instances) {
       if (!document.contains(form)) {
         this.destroyInstance(instance);
       }
     }
 
-    const forms = document.querySelectorAll(this.options.selector);
+    const forms = root.querySelectorAll(this.options.selector);
     for (const form of forms) {
       if (this.instances.has(form)) continue;
       const instance = this.createInstance(form);

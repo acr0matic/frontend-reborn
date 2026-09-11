@@ -6,6 +6,3 @@ import '../scss/main.scss';
 
 /* Подключение скриптов */
 import './global/init';
-
-import './layout/header';
-import './layout/menu';

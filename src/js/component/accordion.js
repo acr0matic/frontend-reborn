@@ -56,15 +56,16 @@ export default class Accordion {
 
   /**
    * Finds and initializes all uninitialized accordions
+   * @param {ParentNode} [root=document] - корневой узел для поиска элементов
    */
-  update() {
+  update(root = document) {
     this.instances = this.instances.filter((instance) => {
       if (document.contains(instance.el)) return true;
       this.destroyInstance(instance);
       return false;
     });
 
-    const accordions = document.querySelectorAll(`${this.options.accordionSelector}:not(.${this.options.initializedClass})`);
+    const accordions = root.querySelectorAll(`${this.options.accordionSelector}:not(.${this.options.initializedClass})`);
 
     for (const accordion of accordions) {
       const header = accordion.querySelector(this.options.headerSelector);
@@ -161,6 +162,7 @@ export default class Accordion {
     instance.header.removeEventListener('click', instance.headerClickHandler);
     instance.body.removeEventListener('dropdownToggleStart', instance.dropdownStartHandler);
     instance.body.removeEventListener('dropdownToggle', instance.dropdownEndHandler);
+    instance.collapse.destroy();
     instance.el.classList.remove(this.options.initializedClass);
     delete instance.el.__collapse;
   }

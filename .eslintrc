@@ -17,6 +17,14 @@
     "src/js/libs/",
     "webpack.config.js"
   ],
+  "overrides": [
+    {
+      "files": ["*.config.js", ".*rc.js"],
+      "rules": {
+        "unicorn/prefer-module": "off"
+      }
+    }
+  ],
   "rules": {
     "no-unused-vars": "off",
     "no-new": "off",

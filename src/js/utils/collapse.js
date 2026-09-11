@@ -8,6 +8,8 @@ export class Collapse {
     this._className = className;
     this._container = container || target.parentNode;
     this._isTransitioning = false;
+    this._timer = undefined;
+    this._onTransitionEnd = undefined;
 
     this.init();
   }
@@ -26,7 +28,7 @@ export class Collapse {
     }
   }
 
-  show() {
+  open() {
     if (this._isTransitioning || this._container.classList.contains(this._className)) return;
 
     this._isTransitioning = true;
@@ -41,15 +43,14 @@ export class Collapse {
 
     this._triggerEvent('dropdownToggleStart');
 
-    window.setTimeout(() => {
+    this._afterTransition(() => {
       el.style.height = '';
       el.style.transition = '';
-      this._isTransitioning = false;
-      this._triggerEvent();
-    }, this._duration);
+      this._finishTransition();
+    });
   }
 
-  hide() {
+  close() {
     if (this._isTransitioning || !this._container.classList.contains(this._className)) return;
 
     this._isTransitioning = true;
@@ -65,15 +66,62 @@ export class Collapse {
 
     this._triggerEvent('dropdownToggleStart');
 
-    window.setTimeout(() => {
+    this._afterTransition(() => {
       el.style.transition = '';
-      this._isTransitioning = false;
-      this._triggerEvent();
-    }, this._duration);
+      this._finishTransition();
+    });
   }
 
   toggle() {
-    this._container.classList.contains(this._className) ? this.hide() : this.show();
+    this._container.classList.contains(this._className) ? this.close() : this.open();
+  }
+
+  /**
+   * Завершает переход по событию transitionend с таймаутом-фолбэком
+   * @param {Function} callback - действие после завершения анимации
+   */
+  _afterTransition(callback) {
+    this._clearPending();
+
+    this._onTransitionEnd = (event) => {
+      if (event.target !== this._target || event.propertyName !== 'height') return;
+      this._completeTransition(callback);
+    };
+
+    this._target.addEventListener('transitionend', this._onTransitionEnd);
+    this._timer = window.setTimeout(() => {
+      this._completeTransition(callback);
+    }, this._duration + 50);
+  }
+
+  _completeTransition(callback) {
+    this._clearPending();
+    callback();
+  }
+
+  _finishTransition() {
+    this._isTransitioning = false;
+    this._triggerEvent();
+  }
+
+  _clearPending() {
+    if (this._timer !== undefined) {
+      clearTimeout(this._timer);
+      this._timer = undefined;
+    }
+
+    if (this._onTransitionEnd) {
+      this._target.removeEventListener('transitionend', this._onTransitionEnd);
+      this._onTransitionEnd = undefined;
+    }
+  }
+
+  destroy() {
+    this._clearPending();
+    this._target.style.height = '';
+    this._target.style.transition = '';
+    this._target.style.overflow = '';
+    this._isTransitioning = false;
   }
 
   _triggerEvent(eventName = 'dropdownToggle') {

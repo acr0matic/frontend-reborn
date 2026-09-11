@@ -198,43 +198,44 @@ window.App.accordion.update();
 
 ## Интеграция
 
-### Глобальный объект App
+### Публичный API (window.App)
 
-Глобальный объект `window.App` содержит экземпляры всех компонентов для доступа из любой части приложения.
+`window.App` — стабильный фасад поверх внутреннего реестра компонентов.
+Для интеграции (натяжка вёрстки на CMS, сторонние скрипты) используйте только
+перечисленные ниже методы и события — внутренности компонентов могут меняться.
 
-```javascript
-window.App = {
-  modal: modalController,        // Управление модальными окнами
-  submenu: submenuController,    // Управление подменю навигации
-  accordion: accordionController, // Управление аккордеонами
-  lazyImage: lazyImageController,        // Ленивая загрузка изображений
-  lazyBackground: lazyBackgroundController // Ленивая загрузка фонов
-};
-```
-
-#### Доступ к методам компонентов
+#### Методы
 
 ```javascript
-// Открытие модалки программно
-window.App.modal.open('callback', document.querySelector('button'));
-
-// Закрытие всех модалок
+// Модальные окна
+window.App.modal.open('callback');
+window.App.modal.close('callback');   // без аргумента — закрывает последнюю открытую
 window.App.modal.closeAll();
 
-// Обновление подменю (если добавлены новые элементы)
-window.App.submenu.update();
-
-// Работа с аккордеонами
-window.App.accordion.open('.c-accordion:first-child');
+// Аккордеоны
+window.App.accordion.open('.c-accordion');
+window.App.accordion.close('.c-accordion');
+window.App.accordion.toggle('.c-accordion');
 window.App.accordion.closeAll();
-window.App.accordion.update();
 
-// Работа с lazy loading
-window.App.lazyImage.update();
-window.App.lazyBackground.update();
+// Переинициализация всех компонентов после AJAX-вставки разметки
+window.App.update();
 
-// Получение настроек
-console.log(window.App.modal.options);
+// Запасной доступ к экземпляру компонента (нестандартные случаи)
+window.App.get('modal').options.closeOnEsc = false;
+window.App.get('form'); // lazyImage, lazyBackground, submenu, numberInput
+```
+
+#### События для интеграции
+
+Компоненты слушают команды на `document` — удобно вызывать из сторонних
+скриптов и CMS-шаблонов без доступа к `window.App`:
+
+```javascript
+document.dispatchEvent(new CustomEvent('modal:open', { detail: 'callback' }));
+document.dispatchEvent(new CustomEvent('modal:close', { detail: 'callback' }));
+document.dispatchEvent(new CustomEvent('modal:closeAll'));
+document.dispatchEvent(new CustomEvent('app:update')); // после AJAX-вставки разметки
 ```
 
 #### События и интеграция
@@ -249,15 +250,15 @@ window.addEventListener('modalClosed', (e) => {
   console.log('Закрыта модалка:', e.detail.modal);
 });
 
-// Динамическое изменение настроек
-window.App.modal.options.closeOnEsc = false;
+// Динамическое изменение настроек (через запасной доступ к экземпляру)
+window.App.get('modal').options.closeOnEsc = false;
 ```
 
 #### Примеры использования в других скриптах
 
 ```javascript
 // Валидация формы перед закрытием
-window.App.modal.options.onClose = (modal) => {
+window.App.get('modal').options.onClose = (modal) => {
   const form = modal.querySelector('form');
   if (form && form.dataset.dirty === 'true') {
     if (!confirm('Есть несохраненные изменения. Закрыть?')) {
@@ -272,7 +273,7 @@ if (window.location.hash === '#callback') {
 }
 
 // Интеграция с аналитикой
-window.App.modal.options.onShow = (modal) => {
+window.App.get('modal').options.onShow = (modal) => {
   gtag('event', 'modal_open', {
     modal_id: modal.dataset.modal
   });

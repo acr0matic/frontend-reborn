@@ -44,15 +44,16 @@ export default class Submenu {
 
   /**
    * Finds and initializes all uninitialized submenus
+   * @param {ParentNode} [root=document] - корневой узел для поиска элементов
    */
-  update() {
+  update(root = document) {
     this.instances = this.instances.filter((instance) => {
       if (document.contains(instance.el)) return true;
       this.destroyInstance(instance);
       return false;
     });
 
-    const submenus = document.querySelectorAll(`.nav__submenu:not(.${this.options.initializedClass})`);
+    const submenus = root.querySelectorAll(`.nav__submenu:not(.${this.options.initializedClass})`);
 
     for (const menu of submenus) {
       const list = menu.querySelector('ul');
@@ -182,6 +183,7 @@ export default class Submenu {
 
   destroyInstance(instance) {
     instance.el.removeEventListener('click', instance.clickHandler);
+    instance.collapse.destroy();
     instance.el.classList.remove(this.options.initializedClass);
     delete instance.el.__collapse;
   }

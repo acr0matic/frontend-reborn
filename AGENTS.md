@@ -448,7 +448,8 @@ $z-index-toast: 54;
 - ES6+ классы.
 - JSDoc для методов.
 - Экспорт по умолчанию.
-- Глобальный доступ через `window.App`.
+- Единый lifecycle компонентов: `init()` / `update(root)` / `destroy()`; регистрация через `app.register()` в `global/init.js`.
+- Публичный API для интеграторов — фасад `window.App` и события на `document` (см. `DOCS.MD`).
 - GSAP-анимации подключаются через `data-animation="тип"` на секциях.
 - Использование `querySelectorAll` + `for...of` для обработки всех элементов.
 - ScrollTrigger с `toggleActions: 'play none none reverse'`.
