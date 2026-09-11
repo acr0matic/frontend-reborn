@@ -152,14 +152,13 @@ HTML-разметке (например, в футере сайта как «Д�
 
 * `yarn run dev` — режим разработки с локальным сервером и hot reload.
 * `yarn run build` — production-сборка.
-* `yarn run build_wp` — сборка, дополнительно прогоняющая gulp-задачи `styles`, `scripts`, `layout` под Wordpress
+* `yarn run build_wp` — сборка в структуре WordPress-темы (`webpack --env=wp`): `style.css` с заголовком темы в корне `dist`, JS в `assets/js/`.
 * `yarn run deploy` — загрузка сборки на удаленный хост (настройка FTP — в `node_scripts/deploy.js`).
 
 ## Стандартная файловая структура
 
 ```
 frontend-reborn
-├── gulp_tasks
 ├── node_scripts
 ├── src
 │   ├── assets
@@ -184,7 +183,6 @@ frontend-reborn
 │   │   └── vendors
 │   ├── index.html
 │   └── page-home.html
-├── gulpfile.js
 ├── package.json
 └── webpack.config.js
 ```
@@ -193,7 +191,6 @@ frontend-reborn
   * ```package.json``` — список зависимостей и общая конфигурация проекта
   * ```webpack.config.js``` — настройки сборки Webpack
   * ```postcss.config.js``` — конфигурация PostCSS
-  * ```gulpfile.js``` — подключение gulp-задач для дополнительной обработки
   * ```.browserslistrc``` – список поддерживаемых браузеров
   * ```.editorconfig``` – единый формат настроек для всех IDE
   * ```.eslintrc``` — настройки ESLint
@@ -212,8 +209,7 @@ frontend-reborn
   * SCSS-файлы: ```src/scss```
 * Папка ```dist``` - папка для билда проекта, из нее с помощью команды ```yarn run deploy``` файлы отправляются на
   удаленный сервер.
-* Папка ```node_scripts``` - папка с NPM-скриптами (deploy).
-* Папка ```gulp_tasks``` - gulp-задачи, используемые в ```yarn run build_wp```.
+* Папка ```node_scripts``` - папка с NPM-скриптами (deploy) и кастомными Webpack-loader'ами.
 * Папка ```node_modules``` - папка с NPM-зависимостями, никогда не трогаем
 
 ## Рекомендации по использованию

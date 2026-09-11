@@ -18,31 +18,52 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-const cacheDir = path.resolve(__dirname, 'node_modules', '.cache');
-if (!fs.existsSync(cacheDir)) {
-  fs.mkdirSync(cacheDir, { recursive: true });
-}
-
-const postHtmlCustomLoader = path.resolve(cacheDir, 'posthtml-watch-loader.js');
-fs.writeFileSync(postHtmlCustomLoader, `
-  const path = require('path');
-  module.exports = function(content) {
-    const regex = /<include[^>]+src="([^"]+)"/gi;
-    let match;
-      while ((match = regex.exec(content)) !== null) {
-        this.addDependency(path.resolve(this.rootContext, 'src', match[1]));
-      }
-      return content;
-    };
-`);
+const postHtmlWatchLoader = path.resolve(__dirname, 'node_scripts', 'posthtml-watch-loader.js');
 
 const includeRoot = path.resolve(__dirname, 'src');
 const pages = fs
   .readdirSync(includeRoot)
   .filter(file => file.endsWith('.html'));
 
+const WP_THEME_HEADER = [
+  '/*',
+  'Theme Name: ШАБЛОН',
+  'Description: -',
+  'Author: acr0matic',
+  'Author URI: https://github.com/acr0matic',
+  'Version: 1.0.0',
+  '*/',
+  '',
+].join('\n');
+
+/**
+ * Добавляет заголовок темы WordPress в начало style.css (режим --env=wp)
+ */
+class WordPressThemeHeaderPlugin {
+  apply(compiler) {
+    const { Compilation, sources } = compiler.webpack;
+
+    compiler.hooks.thisCompilation.tap('WordPressThemeHeaderPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap(
+        { name: 'WordPressThemeHeaderPlugin', stage: Compilation.PROCESS_ASSETS_STAGE_SUMMARIZE },
+        () => {
+          const asset = compilation.getAsset('style.css');
+          if (!asset) return;
+
+          compilation.updateAsset(
+            'style.css',
+            new sources.ConcatSource(WP_THEME_HEADER, '\n', asset.source),
+          );
+        },
+      );
+    });
+  }
+}
+
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
+  const isWordPress = Boolean(env?.wp);
+
   let buildDateValue = null;
   try {
     buildDateValue = execSync(
@@ -58,19 +79,19 @@ module.exports = (env, argv) => {
     stats: 'errors-only',
 
     mode: isProduction ? 'production' : 'development',
-    devtool: 'source-map',
+    devtool: isProduction ? false : 'source-map',
 
     output: {
-      filename: 'js/bundle.js',
+      filename: isWordPress ? 'assets/js/bundle.js' : 'js/bundle.js',
       path: path.resolve(__dirname, 'dist'),
       clean: true,
       assetModuleFilename: (pathData) => {
-        const filepath = path
-          .dirname(pathData.filename)
-          .split('/')
-          .slice(1)
-          .join('/');
-        return `${filepath}/[name][ext]`;
+        const absolute = path.resolve(__dirname, pathData.filename);
+        const relative = path
+          .relative(includeRoot, absolute)
+          .replaceAll('\\', '/');
+
+        return path.posix.join(path.posix.dirname(relative), '[name][ext]');
       },
     },
 
@@ -122,9 +143,7 @@ module.exports = (env, argv) => {
                 ],
               },
             },
-            {
-              loader: postHtmlCustomLoader,
-            }
+            postHtmlWatchLoader,
           ],
         },
 
@@ -153,7 +172,7 @@ module.exports = (env, argv) => {
             {
               loader: 'postcss-loader',
               options: {
-                sourceMap: true,
+                sourceMap: !isProduction,
               },
             },
           ],
@@ -168,7 +187,7 @@ module.exports = (env, argv) => {
             {
               loader: 'css-loader',
               options: {
-                sourceMap: true,
+                sourceMap: !isProduction,
                 importLoaders: 2,
                 modules: false,
               },
@@ -176,7 +195,7 @@ module.exports = (env, argv) => {
             {
               loader: 'postcss-loader',
               options: {
-                sourceMap: true,
+                sourceMap: !isProduction,
               },
             },
             {
@@ -185,7 +204,7 @@ module.exports = (env, argv) => {
                 sourceMap: !isProduction,
                 sassOptions: {
                   silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin'],
-                  outputStyle: isProduction ? 'compressed' : 'expanded',
+                  outputStyle: 'expanded',
                 },
               },
             },
@@ -220,11 +239,15 @@ module.exports = (env, argv) => {
         },
       }),
 
-      new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
+      new MiniCssExtractPlugin({
+        filename: isWordPress ? 'style.css' : 'css/[name].css',
+      }),
+
       new CopyWebpackPlugin({
         patterns: [{ from: './src/assets', to: 'assets/' }],
       }),
 
+      isWordPress && new WordPressThemeHeaderPlugin(),
 
       isProduction &&
       new FaviconsWebpackPlugin({
@@ -247,7 +270,7 @@ module.exports = (env, argv) => {
       hot: true,
       port: 'auto',
       static: path.resolve(__dirname, 'dist'),
-      watchFiles: ['src/**/*.html'],
+      watchFiles: ['src/**/*.html', 'src/assets/**/*'],
       client: {
         overlay: {
           errors: true,
