@@ -13,7 +13,7 @@ allowed-tools:
   - exec
 ---
 
-Create a new page following the project methodology. All code comments and explanations must be in Russian.
+Create a new page following the project methodology. Before creating anything, apply `/html-methodology`; for SCSS use `/scss-methodology`, and for page behavior use `/javascript-methodology`. All code comments and explanations must be in Russian.
 
 ## Step 1. Determine type and ID
 
@@ -30,7 +30,7 @@ Page ID: `{prefix}-{name}` → goes on `.page__body`. Section ID: `{page-id}-{se
 
 ## Step 2. Find the nearest implementations
 
-Before creating anything, read at least one existing page of the same type (`src/*.html`) and its SCSS in `scss/layout/pages/{type}/` to repeat the pattern. Do not copy markup blindly — verify the class names.
+Before creating anything, read at least one existing page of the same type (`src/*.html`) and its SCSS in `scss/layout/pages/{type}/` to repeat the pattern. Do not copy markup blindly — verify the class names and apply `/html-methodology`.
 
 ## Step 3. Create the HTML
 
@@ -74,18 +74,17 @@ Rules:
 - the section's root block gets a short semantic name without a page prefix (`.content`, `.hero`, `.info`); uniqueness comes from `#section-id`;
 - after every `</div>` — a comment `<!-- /.first-class -->`;
 - CMS-editable text goes inside a `data-editor` wrapper;
-- images follow `AGENTS.md` §9 (`.lazy`, `.image--cover|contain`, `data-src`).
+- images, SVG, `picture` and lazy loading follow `/html-methodology`.
 
 ## Step 4. Create the SCSS
 
 - Folder `src/scss/layout/pages/{type}/{name}/`, file `_content.scss` (or one file per section for complex pages).
-- All styles strictly under `#section-id { .block { &__element {} } }`, nesting depth ≤ 2.
-- Register in `src/scss/layout/pages/{type}/_main.scss` — `@import "{name}/content";`.
-- Responsive only via `@include mq(...)`; values come from tokens in `settings/_vars.scss`.
+- Apply `/scss-methodology`: styles are strictly under `#section-id`, nesting depth ≤ 2, responsive rules use `@include mq(...)`, and values come from `settings/_vars.scss`.
+- Register in `src/scss/layout/pages/{type}/_main.scss` — `@import "{name}/content"`.
 
 ## Step 5. JS — only if needed
 
-If the page has behavior: `src/js/layout/page/{page-id}.js` with an `if (page)` guard, imported in `src/js/app.js`. If there is no behavior — do not create the file.
+If the page has behavior, apply `/javascript-methodology`: create `src/js/layout/page/{page-id}.js` with an `if (page)` guard and import it in `src/js/app.js`. If there is no behavior — do not create the file.
 
 ## Step 6. Dashboard
 

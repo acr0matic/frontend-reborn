@@ -3,14 +3,16 @@
 // import ScrollTop from '../utils/scroll-top';
 // import Gallery from '../component/ui/gallery';
 // import Tab from '../component/ui/tabs';
+// import Lightbox from '../component/ui/lightbox';
 
 import LazyLoad from 'vanilla-lazyload';
 import Modal from '../component/ui/modal';
 import Submenu from '../component/ui/submenu';
 import Accordion from '../component/ui/accordion';
 import Form from '../component/form/form';
-import NumberInput from '../component/input/number';
 
+import NumberInput from '../component/input/number';
+import Select from '../component/input/select';
 import Header from '../layout/header';
 import MobileMenu from '../layout/menu';
 import LazyVideo from '../utils/video-optimization';
@@ -77,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
     .register('submenu', submenu)
     .register('accordion', accordion)
     .register('form', form)
-    .register('numberInput', numberInput);
+    .register('numberInput', numberInput)
+    .register('select', new Select());
 
   // app.register('scrollTop', new ScrollTop());
   // app.register('gallery', new Gallery());

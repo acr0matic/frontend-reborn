@@ -12,12 +12,12 @@ allowed-tools:
   - exec
 ---
 
-Verify a page against the project methodology and basic quality standards. If no page name is given — detect it from recently changed files or ask.
+Verify a page against the project methodology and basic quality standards. Load `/html-methodology` and `/scss-methodology`; if the page has behavior, also apply `/javascript-methodology`. If no page name is given — detect it from recently changed files or ask.
 
 ## Stage 1. Static review
 
 1. Read `src/{page}.html` and the related SCSS (`scss/layout/pages/{type}/{page}/`).
-2. Check against the checklist:
+2. Apply the thematic skills and check the following acceptance criteria:
 
 **HTML**
 - skeleton: `head`/`header`/`footer` includes, `body.page`, `main`, `.page__body` with the correct ID;
@@ -34,6 +34,12 @@ Verify a page against the project methodology and basic quality standards. If no
 - no `position: absolute` on content elements (layers only);
 - tokens from `_vars.scss`, no magic colors/fonts;
 - SCSS class names match the HTML classes (spot-check).
+
+**JavaScript, when present**
+- page-root guard exists and selectors are scoped;
+- module is imported or registered through the project lifecycle;
+- `init()`/`update()`/`destroy()` responsibilities are clear;
+- listeners and observers are cleaned up; states use `is-*` and behavior uses `data-*`.
 
 ## Stage 2. Linters and build
 
